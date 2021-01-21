@@ -14,6 +14,7 @@
 		240994FC25B6282100A16247 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240994FB25B6282100A16247 /* BoardView.swift */; };
 		240994FF25B6318000A16247 /* Square.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240994FE25B6318000A16247 /* Square.swift */; };
 		2409950325B6488500A16247 /* Piece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2409950225B6488500A16247 /* Piece.swift */; };
+		24E7E57A25B9472800FD9172 /* BoardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E7E57925B9472800FD9172 /* BoardModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		240994FB25B6282100A16247 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		240994FE25B6318000A16247 /* Square.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Square.swift; sourceTree = "<group>"; };
 		2409950225B6488500A16247 /* Piece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Piece.swift; sourceTree = "<group>"; };
+		24E7E57925B9472800FD9172 /* BoardModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 				240994DC25B3AABE00A16247 /* AppDelegate.swift */,
 				240994DE25B3AABE00A16247 /* SceneDelegate.swift */,
 				240994E025B3AABE00A16247 /* ViewController.swift */,
+				24E7E57925B9472800FD9172 /* BoardModel.swift */,
 				240994FB25B6282100A16247 /* BoardView.swift */,
 				240994FE25B6318000A16247 /* Square.swift */,
 				2409950225B6488500A16247 /* Piece.swift */,
@@ -140,6 +143,7 @@
 			files = (
 				240994FF25B6318000A16247 /* Square.swift in Sources */,
 				240994E125B3AABE00A16247 /* ViewController.swift in Sources */,
+				24E7E57A25B9472800FD9172 /* BoardModel.swift in Sources */,
 				2409950325B6488500A16247 /* Piece.swift in Sources */,
 				240994DD25B3AABE00A16247 /* AppDelegate.swift in Sources */,
 				240994FC25B6282100A16247 /* BoardView.swift in Sources */,

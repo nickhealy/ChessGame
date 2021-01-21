@@ -9,7 +9,7 @@ import UIKit
 
 class BoardView: UIView {
     var squares: [Square] = []
-    var pieces: [[Piece?]] = []
+    var pieces: [[Piece?]]?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -24,7 +24,6 @@ class BoardView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         for square in squares {
-            print(square.boardCoords!, square.color!)
             let squareFrame = createFrame(boardCoords: square.boardCoords!)
             square.frame = squareFrame
         }
@@ -37,22 +36,35 @@ extension BoardView {
         var isBlack: Bool = false
         for row in 0..<8 {
             for col in 0..<8 {
-                let color = isBlack ? Colors.black : Colors.white
+//                alternate black and white
+                let color = isBlack ? Colors.black: Colors.white
                 let square = Square(color: color, boardCoords: CGPoint(x: col, y: row))
+                isBlack = !isBlack
+                
+//               adds view to ui
                 addSubview(square)
                 squares.append(square)
-                
-                isBlack = !isBlack
             }
             isBlack = !isBlack
         }
     }
     
-    func populateBoard() {
+    func populateBoard(currentArrangement: [[PlayPieces?]]) -> [[Piece?]] {
+        var newPieces: [[Piece?]] = []
         
+        for row in currentArrangement {
+            var newRow: [Piece?] = []
+            for piece in row {
+                if let piece = piece {
+                    newRow.append(Piece(name: piece))
+                }
+            }
+            newPieces.append(newRow)
+        }
+        return newPieces
     }
     
-    private var squareSize: CGSize {
+    var squareSize: CGSize {
         let bounds = self.bounds
         return CGSize(width: ceil(bounds.width / 8), height: ceil(bounds.height / 8))
     }
