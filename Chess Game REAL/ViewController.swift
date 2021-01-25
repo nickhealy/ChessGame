@@ -9,7 +9,7 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    var boardView: BoardView! = nil
+    var boardView: BoardView?
     var boardModel = BoardModel()
 
     override func viewDidLoad() {
@@ -17,12 +17,21 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         view.backgroundColor = .cyan
         createBoard()
-        createTapListener()
+        
+        boardView?.delegate = self
+        print("boardView --> \(boardView)")
+    }
+    
+//    by this point we will have calculated the measurements of each square
+    override func viewDidLayoutSubviews() {
+        boardView?.showPieceArrangement(newArrangement: boardModel.currentArrangement)
     }
 
     private func createBoard() {
 //        creates board frame
         boardView = BoardView()
+        
+        guard let boardView = boardView else { return }
         boardView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(boardView)
         
@@ -32,17 +41,20 @@ class ViewController: UIViewController {
         boardView.centerYAnchor.constraint(equalTo: view.layoutMarginsGuide.centerYAnchor).isActive = true
     }
     
-    func createTapListener() {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(processTap))
-        view.addGestureRecognizer(tap)
-        view.isUserInteractionEnabled = true
-    }
+//    func updateBoard() {
+//        boardView?.showPieceArrangement(newArrangement: boardModel.currentArrangement)
+//    }
+}
+
+extension ViewController: BoardViewDelegate {
     
-    @objc func processTap(_ gesture: UITapGestureRecognizer){
-        let location = gesture.location(in: boardView)
-        let x = Int(location.x / boardView.squareSize.width)
-        let y = Int(location.y / boardView.squareSize.height)
-        print("\(x),\(y)")
+    func handleTap(row: Int, col: Int, location: CGPoint) {
+        print("tap handled. row: \(row), col: \(col)")
+        guard let pieceKey = boardModel.currentArrangement[row][col] else {
+            return
+        }
+        let piece = PieceFuncs.getPiece(key: pieceKey)
+        print("tapped \(piece.name) of color \(piece.color)")
     }
 }
 

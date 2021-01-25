@@ -7,14 +7,22 @@
 
 import UIKit
 
+protocol BoardViewDelegate {
+    func handleTap(row: Int, col: Int, location: CGPoint)
+}
+
 class BoardView: UIView {
+    var delegate: BoardViewDelegate?
+    
     var squares: [Square] = []
-    var pieces: [[Piece?]]?
+    
+    var test_king: UIImageView! = nil
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .green
         setupBoard()
+        createTapListener()
+    
     }
     
     required init?(coder: NSCoder) {
@@ -27,6 +35,11 @@ class BoardView: UIView {
             let squareFrame = createFrame(boardCoords: square.boardCoords!)
             square.frame = squareFrame
         }
+        
+        test_king = UIImageView(image: UIImage(named: "black_king"))
+        test_king.frame = createFrame(boardCoords: CGPoint(x: 7, y: 7))
+        
+        addSubview(test_king)
     }
 }
 
@@ -49,19 +62,45 @@ extension BoardView {
         }
     }
     
-    func populateBoard(currentArrangement: [[PlayPieces?]]) -> [[Piece?]] {
-        var newPieces: [[Piece?]] = []
-        
-        for row in currentArrangement {
-            var newRow: [Piece?] = []
-            for piece in row {
-                if let piece = piece {
-                    newRow.append(Piece(name: piece))
+    func createTapListener() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(processTap))
+        addGestureRecognizer(tap)
+    }
+    
+    @objc func processTap(_ gesture: UITapGestureRecognizer){
+        print("TAPPED BIATCH")
+        let location = gesture.location(in: self)
+        let x = Int(location.x / squareSize.width)
+        let y = Int(location.y / squareSize.height)
+        print("\(x), \(y)")
+        if delegate == nil {
+            print("NO DELEGATE FUND")
+        }
+        delegate?.handleTap(row: y, col: x, location: location )
+        UIView.animate(withDuration: 0.25, animations: {
+            print("HSOULD BE ANIMATING")
+            let newFrame = self.createFrame(boardCoords: CGPoint(x: x, y: y))
+            self.test_king.frame = newFrame
+            print("HSOULD BE ANIMATING")
+        }, completion: nil )
+    }
+    
+    func showPieceArrangement(newArrangement: [[PieceKeys?]]) {
+        for row in 0..<8 {
+            for col in 0..<8 {
+                if let pieceKey = newArrangement[row][col] {
+                    print("Found my king --> \(pieceKey)")
+                    let piece = PieceFuncs.getPiece(key: pieceKey)
+                    print("Found piece --? \(piece)")
+                    let pieceImage = UIImage(named: piece.image)
+                    let pieceFrame = createFrame(boardCoords: CGPoint(x: col, y: row))
+                    print("frame --> \(pieceFrame)")
+                    let imageView = UIImageView(frame: pieceFrame)
+                    imageView.image = pieceImage
+                    addSubview(imageView)
                 }
             }
-            newPieces.append(newRow)
         }
-        return newPieces
     }
     
     var squareSize: CGSize {

@@ -7,14 +7,15 @@
 
 import UIKit
 
-//enum PieceNames {
-//    case rook, knight, bishop, queen, king, pawn
-//}
+enum PieceNames {
+    case rook, knight, bishop, queen, king, pawn
+}
 
 protocol PieceProtocol {
-    var color: Colors? { get }
-    var name: PlayPieces { get }
-//    will also be image 
+    var color: Colors { get }
+    var name: PieceNames { get }
+//    will also be image
+    var image: String { get }
     var movePattern: [[Int]] { get }
     var hasMoved: Bool { get }
     func findMoves(currentPosition: CGPoint) -> [CGPoint]
@@ -23,13 +24,21 @@ protocol PieceProtocol {
 
 
 struct Piece: PieceProtocol {
-    var color: Colors?
+    var color: Colors
     
-    var name: PlayPieces
+    var name: PieceNames
+    
+    var image: String
     
     var movePattern: [[Int]] = []
     
     var hasMoved: Bool = false
+    
+    init(color: Colors, name: PieceNames) {
+        self.color = color
+        self.name = name
+        self.image = "\(color)_\(name)"
+    }
     
     func findMoves(currentPosition: CGPoint) -> [CGPoint]{
         let moves: [CGPoint] = []
@@ -39,3 +48,5 @@ struct Piece: PieceProtocol {
         return playerColor == color
     }
 }
+
+

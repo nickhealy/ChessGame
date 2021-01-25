@@ -14,13 +14,13 @@ enum Colors {
 
 class Square: UIView {
     var color: Colors?
-    var piece: Piece? = nil
+    var piece: PieceKeys? = nil
     var boardCoords: CGPoint?
     
     convenience init(color: Colors, boardCoords: CGPoint) {
         self.init(frame: .zero)
         self.color = color
-        backgroundColor = color == .white ? .white : .black
+        backgroundColor = color == .white ? .white : .darkGray
         self.boardCoords = boardCoords
         translatesAutoresizingMaskIntoConstraints = true
     }
@@ -33,5 +33,16 @@ class Square: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+//    func renderPiece() {
+//        let pieceImage = UIImage(named: piece?.image ?? "default")
+//        let pieceImageView = UIImageView(image: pieceImage)
+//        addSubview(pieceImageView)
+//        
+//        pieceImageView.translatesAutoresizingMaskIntoConstraints = false
+//        pieceImageView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+//        pieceImageView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+//        pieceImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 5).isActive = true
+//        pieceImageView.topAnchor.constraint(equalTo: topAnchor, constant: 5).isActive = true
+//    }
    
 }
