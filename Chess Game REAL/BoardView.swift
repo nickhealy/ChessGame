@@ -11,17 +11,26 @@ protocol BoardViewDelegate {
     func handleTap(row: Int, col: Int, location: CGPoint)
 }
 
+protocol PieceDragDelegateProtocol {
+    func pieceDrag(piece: UIImageView, row: Int, col: Int)
+    func piecePickUp(piece: UIImageView, row: Int, col: Int)
+}
+
 class BoardView: UIView {
     var delegate: BoardViewDelegate?
     
     var squares: [Square] = []
     
     var test_king: UIImageView! = nil
+    private var xOffset: CGFloat = 0.0
+    private var yOffset: CGFloat = 0.0
+    var dragDelegate: PieceDragDelegateProtocol?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupBoard()
         createTapListener()
+        test_king = UIImageView(image: UIImage(named: "black_king"))
     
     }
     
@@ -36,10 +45,41 @@ class BoardView: UIView {
             square.frame = squareFrame
         }
         
-        test_king = UIImageView(image: UIImage(named: "black_king"))
-        test_king.frame = createFrame(boardCoords: CGPoint(x: 7, y: 7))
-        
+        test_king.isUserInteractionEnabled = true
         addSubview(test_king)
+        
+    }
+    
+}
+
+extension BoardView {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            let point = touch.location(in: self)
+            xOffset = point.x - test_king.center.x
+            yOffset = point.y - test_king.center.y
+        }
+        
+        let row = Int(test_king.center.y / squareSize.height)
+        let col = Int(test_king.center.x / squareSize.width)
+        
+        dragDelegate?.piecePickUp(piece: test_king, row: row, col: col)
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            let point = touch.location(in: self)
+            test_king.center = CGPoint(x: point.x, y: point.y)
+        }
+    }               
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.touchesMoved(touches, with: event)
+        let pieceCenterPoint = test_king.center
+        let droppedRow = Int(pieceCenterPoint.y / squareSize.height)
+        let droppedCol = Int(pieceCenterPoint.x / squareSize.width)
+        
+        dragDelegate?.pieceDrag(piece: test_king, row: droppedRow, col: droppedCol)
     }
 }
 
@@ -76,12 +116,15 @@ extension BoardView {
         if delegate == nil {
             print("NO DELEGATE FUND")
         }
+        
         delegate?.handleTap(row: y, col: x, location: location )
+
         UIView.animate(withDuration: 0.25, animations: {
-            print("HSOULD BE ANIMATING")
+//            print("HSOULD BE ANIMATING")
             let newFrame = self.createFrame(boardCoords: CGPoint(x: x, y: y))
             self.test_king.frame = newFrame
-            print("HSOULD BE ANIMATING")
+            print(self.test_king)
+//            print("HSOULD BE ANIMATING")
         }, completion: nil )
     }
     
@@ -108,7 +151,8 @@ extension BoardView {
         return CGSize(width: ceil(bounds.width / 8), height: ceil(bounds.height / 8))
     }
     
-    private func createFrame(boardCoords: CGPoint) -> CGRect {
+//    should be private in future
+    func createFrame(boardCoords: CGPoint) -> CGRect {
         let offset = CGPoint(x: boardCoords.x * squareSize.width, y: boardCoords.y * squareSize.height)
         return CGRect(origin: offset, size: squareSize)
     }

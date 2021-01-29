@@ -19,7 +19,7 @@ class ViewController: UIViewController {
         createBoard()
         
         boardView?.delegate = self
-        print("boardView --> \(boardView)")
+        boardView?.dragDelegate = self
     }
     
 //    by this point we will have calculated the measurements of each square
@@ -55,6 +55,19 @@ extension ViewController: BoardViewDelegate {
         }
         let piece = PieceFuncs.getPiece(key: pieceKey)
         print("tapped \(piece.name) of color \(piece.color)")
+    }
+}
+
+extension ViewController: PieceDragDelegateProtocol {
+    
+    func piecePickUp(piece: UIImageView, row: Int, col: Int) {
+        boardModel.currentArrangement[row][col] = nil
+    }
+    
+    func pieceDrag(piece: UIImageView, row: Int, col: Int) {
+        boardModel.currentArrangement[row][col] = PieceKeys.b_king
+        print(boardModel.currentArrangement!)
+        boardView?.showPieceArrangement(newArrangement: boardModel.currentArrangement)
     }
 }
 
