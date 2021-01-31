@@ -15,9 +15,9 @@ enum Colors {
 class Square: UIView {
     var color: Colors?
     var piece: PieceKeys? = nil
-    var boardCoords: CGPoint?
+    var boardCoords: PieceCoords?
     
-    convenience init(color: Colors, boardCoords: CGPoint) {
+    convenience init(color: Colors, boardCoords: PieceCoords) {
         self.init(frame: .zero)
         self.color = color
         backgroundColor = color == .white ? .white : .darkGray

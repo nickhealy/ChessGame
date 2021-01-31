@@ -6,7 +6,7 @@
 //
 
 class BoardModel {
-    var currentArrangement: [[PieceKeys?]]! = nil
+    var currentArrangement: [[PieceKeys?]]
     
     init(){
         currentArrangement = [

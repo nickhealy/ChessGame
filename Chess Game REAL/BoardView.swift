@@ -21,16 +21,16 @@ class BoardView: UIView {
     
     var squares: [Square] = []
     
-    var test_king: UIImageView! = nil
+    
     private var xOffset: CGFloat = 0.0
     private var yOffset: CGFloat = 0.0
     var dragDelegate: PieceDragDelegateProtocol?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupBoard()
+        renderBoardSquares()
         createTapListener()
-        test_king = UIImageView(image: UIImage(named: "black_king"))
+//        test_king = UIImageView(image: UIImage(named: "black_king"))
     
     }
     
@@ -41,12 +41,12 @@ class BoardView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         for square in squares {
-            let squareFrame = createFrame(boardCoords: square.boardCoords!)
+            let squareFrame = createFrame(pieceCoords: square.boardCoords!)
             square.frame = squareFrame
         }
         
-        test_king.isUserInteractionEnabled = true
-        addSubview(test_king)
+//        test_king.isUserInteractionEnabled = true
+//        addSubview(test_king)
         
     }
     
@@ -56,42 +56,43 @@ extension BoardView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
             let point = touch.location(in: self)
-            xOffset = point.x - test_king.center.x
-            yOffset = point.y - test_king.center.y
+            
+//            xOffset = point.x - test_king.center.x
+//            yOffset = point.y - test_king.center.y
         }
         
-        let row = Int(test_king.center.y / squareSize.height)
-        let col = Int(test_king.center.x / squareSize.width)
+//        let row = Int(test_king.center.y / squareSize.height)
+//        let col = Int(test_king.center.x / squareSize.width)
         
-        dragDelegate?.piecePickUp(piece: test_king, row: row, col: col)
+//        dragDelegate?.piecePickUp(piece: test_king, row: row, col: col)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         if let touch = touches.first {
             let point = touch.location(in: self)
-            test_king.center = CGPoint(x: point.x, y: point.y)
+//            test_king.center = CGPoint(x: point.x, y: point.y)
         }
     }               
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.touchesMoved(touches, with: event)
-        let pieceCenterPoint = test_king.center
-        let droppedRow = Int(pieceCenterPoint.y / squareSize.height)
-        let droppedCol = Int(pieceCenterPoint.x / squareSize.width)
+//        let pieceCenterPoint = test_king.center
+//        let droppedRow = Int(pieceCenterPoint.y / squareSize.height)
+//        let droppedCol = Int(pieceCenterPoint.x / squareSize.width)
         
-        dragDelegate?.pieceDrag(piece: test_king, row: droppedRow, col: droppedCol)
+//        dragDelegate?.pieceDrag(piece: test_king, row: droppedRow, col: droppedCol)
     }
 }
 
 extension BoardView {
-    func setupBoard() {
+    func renderBoardSquares() {
 //        creates squares
         var isBlack: Bool = false
         for row in 0..<8 {
             for col in 0..<8 {
 //                alternate black and white
                 let color = isBlack ? Colors.black: Colors.white
-                let square = Square(color: color, boardCoords: CGPoint(x: col, y: row))
+                let square = Square(color: color, boardCoords: PieceCoords(row: row, col: col))
                 isBlack = !isBlack
                 
 //               adds view to ui
@@ -119,31 +120,30 @@ extension BoardView {
         
         delegate?.handleTap(row: y, col: x, location: location )
 
-        UIView.animate(withDuration: 0.25, animations: {
-//            print("HSOULD BE ANIMATING")
-            let newFrame = self.createFrame(boardCoords: CGPoint(x: x, y: y))
-            self.test_king.frame = newFrame
-            print(self.test_king)
-//            print("HSOULD BE ANIMATING")
-        }, completion: nil )
+//        UIView.animate(withDuration: 0.25, animations: {
+////            print("HSOULD BE ANIMATING")
+//            let newFrame = self.create÷Frame(boardCoords: CGPoint(x: x, y: y))
+////            self.test_king.frame = newFrame
+////            print(self.test_king)
+////            print("HSOULD BE ANIMATING")
+//        }, completion: nil )
     }
     
-    func showPieceArrangement(newArrangement: [[PieceKeys?]]) {
+    func addPieceImagesToBoard(newArrangement: [[PieceKeys?]]) {
         for row in 0..<8 {
             for col in 0..<8 {
-                if let pieceKey = newArrangement[row][col] {
-                    print("Found my king --> \(pieceKey)")
-                    let piece = PieceFuncs.getPiece(key: pieceKey)
-                    print("Found piece --? \(piece)")
-                    let pieceImage = UIImage(named: piece.image)
-                    let pieceFrame = createFrame(boardCoords: CGPoint(x: col, y: row))
-                    print("frame --> \(pieceFrame)")
-                    let imageView = UIImageView(frame: pieceFrame)
-                    imageView.image = pieceImage
-                    addSubview(imageView)
+                if let pieceKeyAtCurrentSquare = newArrangement[row][col] {
+                    let pieceImage = PieceData.getPieceImage(pieceKey: pieceKeyAtCurrentSquare)
+                    addPieceImageToBoard(pieceImage: pieceImage, coords: PieceCoords(row: row, col: col))
                 }
             }
         }
+    }
+    
+    func addPieceImageToBoard(pieceImage: PieceImage, coords: PieceCoords) {
+        let pieceImageFrame = createFrame(pieceCoords: coords)
+        pieceImage.frame = pieceImageFrame
+        addSubview(pieceImage)
     }
     
     var squareSize: CGSize {
@@ -152,8 +152,10 @@ extension BoardView {
     }
     
 //    should be private in future
-    func createFrame(boardCoords: CGPoint) -> CGRect {
-        let offset = CGPoint(x: boardCoords.x * squareSize.width, y: boardCoords.y * squareSize.height)
+    func createFrame(pieceCoords: PieceCoords) -> CGRect {
+        let originX = CGFloat(pieceCoords.row) * squareSize.width
+        let originY = CGFloat(pieceCoords.col) * squareSize.height
+        let offset = CGPoint(x: originX, y: originY)
         return CGRect(origin: offset, size: squareSize)
     }
     

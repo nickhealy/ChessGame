@@ -24,8 +24,24 @@ class ViewController: UIViewController {
     
 //    by this point we will have calculated the measurements of each square
     override func viewDidLayoutSubviews() {
-        boardView?.showPieceArrangement(newArrangement: boardModel.currentArrangement)
+        layoutStartingArrangement()
     }
+    
+    private func layoutStartingArrangement() {
+        let startingArragement = boardModel.currentArrangement
+//        updateCoordsOfPiecesToArrangement(pieceArrangement)
+        boardView?.addPieceImagesToBoard(newArrangement: startingArragement)
+
+    }
+//    private func updateCoordsOfPiecesToArrangement(_ model: [[PieceKeys?]]) {
+//        for row in 0..<8 {
+//            for col in 0..<8 {
+//                if let keyOfPieceInSquare = model[row][col] {
+//                    let piece =
+//                }
+//            }
+//        }
+//    }
 
     private func createBoard() {
 //        creates board frame
@@ -66,10 +82,29 @@ extension ViewController: PieceDragDelegateProtocol {
     
     func pieceDrag(piece: UIImageView, row: Int, col: Int) {
         boardModel.currentArrangement[row][col] = PieceKeys.b_king
-        print(boardModel.currentArrangement!)
-        boardView?.showPieceArrangement(newArrangement: boardModel.currentArrangement)
+        print(boardModel.currentArrangement)
+//        todo : this! s
     }
 }
 
+extension ViewController: PieceImageDelegate {
+    func didTouchPiece(pieceCoords: PieceCoords) {
+//      remove the piece from the BoardModel
+        let row = pieceCoords.row
+        let col = pieceCoords.col
+        boardModel.currentArrangement[row][col] = nil
+        print(boardModel.currentArrangement)
+    }
+    
+    func isMovingPiece(pieceCoods: PieceCoords) {
+        return
+    }
+    
+    func didDropPiece(pieceCoords: PieceCoords) {
+        return
+    }
+    
+    
+}
 
 

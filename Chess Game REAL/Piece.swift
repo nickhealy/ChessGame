@@ -15,7 +15,7 @@ protocol PieceProtocol {
     var color: Colors { get }
     var name: PieceNames { get }
 //    will also be image
-    var image: String { get }
+    var image: PieceImage { get }
     var movePattern: [[Int]] { get }
     var hasMoved: Bool { get }
     func findMoves(currentPosition: CGPoint) -> [CGPoint]
@@ -28,7 +28,7 @@ struct Piece: PieceProtocol {
     
     var name: PieceNames
     
-    var image: String
+    var image: PieceImage
     
     var movePattern: [[Int]] = []
     
@@ -37,7 +37,7 @@ struct Piece: PieceProtocol {
     init(color: Colors, name: PieceNames) {
         self.color = color
         self.name = name
-        self.image = "\(color)_\(name)"
+        self.image = PieceImage(color: color, name: name)
     }
     
     func findMoves(currentPosition: CGPoint) -> [CGPoint]{
