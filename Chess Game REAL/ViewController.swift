@@ -11,6 +11,7 @@ class ViewController: UIViewController {
     
     var boardView: BoardView?
     var boardModel = BoardModel()
+    var currentlySelectedPiece: PieceKeys?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,6 +21,7 @@ class ViewController: UIViewController {
         
         boardView?.delegate = self
         boardView?.dragDelegate = self
+        boardView?.updatePositionDelegate = self
     }
     
 //    by this point we will have calculated the measurements of each square
@@ -33,16 +35,7 @@ class ViewController: UIViewController {
         boardView?.addPieceImagesToBoard(newArrangement: startingArragement)
 
     }
-//    private func updateCoordsOfPiecesToArrangement(_ model: [[PieceKeys?]]) {
-//        for row in 0..<8 {
-//            for col in 0..<8 {
-//                if let keyOfPieceInSquare = model[row][col] {
-//                    let piece =
-//                }
-//            }
-//        }
-//    }
-
+    
     private func createBoard() {
 //        creates board frame
         boardView = BoardView()
@@ -87,12 +80,38 @@ extension ViewController: PieceDragDelegateProtocol {
     }
 }
 
-extension ViewController: PieceImageDelegate {
+extension ViewController: PiecePositionUpdateDelegate {
+    func dragOverSquareAt(pieceCoords: PieceCoords) {
+        return
+    }
+    
+    func dropOnSquareAt(pieceCoords: PieceCoords ) {
+        let droppedRow = pieceCoords.row
+        let droppedCol = pieceCoords.col
+        boardModel.currentArrangement[droppedRow][droppedCol] = self.currentlySelectedPiece
+        print(boardModel.currentArrangement)
+        currentlySelectedPiece = nil
+    }
+    
+    func removePieceFromBoardAt(pieceCoords: PieceCoords) {
+        let touchedRow = pieceCoords.row
+        let touchedCol = pieceCoords.col
+        print("touched : \(touchedRow), \(touchedCol)")
+        
+        let selectedPiece = boardModel.currentArrangement[touchedRow][touchedCol]
+        currentlySelectedPiece = selectedPiece
+        
+        boardModel.currentArrangement[touchedRow][touchedCol] = nil
+        
+    }
+    
+    
     func didTouchPiece(pieceCoords: PieceCoords) {
 //      remove the piece from the BoardModel
-        let row = pieceCoords.row
-        let col = pieceCoords.col
-        boardModel.currentArrangement[row][col] = nil
+        let touchedRow = pieceCoords.row
+        let touchedCol = pieceCoords.col
+        print("here i am")
+        boardModel.currentArrangement[touchedRow][touchedCol] = nil
         print(boardModel.currentArrangement)
     }
     
@@ -106,5 +125,7 @@ extension ViewController: PieceImageDelegate {
     
     
 }
+
+
 
 

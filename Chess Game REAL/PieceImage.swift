@@ -11,10 +11,13 @@ struct PieceCoords {
     var row: Int
     var col: Int
 }
-protocol PieceImageDelegate {
-    func didTouchPiece(pieceCoords: PieceCoords)
-    func isMovingPiece(pieceCoods: PieceCoords)
-    func didDropPiece(pieceCoords: PieceCoords)
+
+protocol PieceImageOnBoardDelegate {
+//    func didTouchPiece(pieceCoords: PieceCoords)
+//    func isMovingPiece(pieceCoods: PieceCoords)
+//    func didDropPiece(pieceCoords: PieceCoords)
+    func beginPieceMove(startingPosition: CGPoint)
+    func endPieceMove(endingPosition: CGPoint)
 }
 
 class PieceImage: UIImageView {
@@ -23,12 +26,11 @@ class PieceImage: UIImageView {
     private var offsetY: CGFloat = 0.0
     
     
-    var pieceImageDelegate: PieceImageDelegate?
+    var delegate: PieceImageOnBoardDelegate?
     
     init(color: Colors, name: PieceNames) {
         let pieceImage = UIImage(named: "\(color)_\(name)")
         super.init(image: pieceImage)
-        
         self.isUserInteractionEnabled = true
     }
     
@@ -37,18 +39,15 @@ class PieceImage: UIImageView {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("BEING CALLED")
         if let touch = touches.first {
             let point = getPointFromTouch(touch: touch)
             offsetX = point.x - self.center.x
             offsetY = point.y - self.center.y
+            
+            delegate?.beginPieceMove(startingPosition: point)
+            
         }
-        
-        guard let coords = self.coords else {
-            return
-        }
-        pieceImageDelegate?.didTouchPiece(pieceCoords: coords)
-        
-        
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -64,6 +63,11 @@ class PieceImage: UIImageView {
         self.touchesMoved(touches, with: event)
 //        todo: make this work so it gets passed a location as well
 //        pieceImageDelegate?.didDropPiece(pieceCoords: self.coords)
+        if let touch = touches.first {
+            let point = getPointFromTouch(touch: touch)
+            delegate?.endPieceMove(endingPosition: point)
+        }
+        
     }
     
     func getPointFromTouch(touch: UITouch) -> CGPoint {

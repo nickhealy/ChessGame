@@ -11,6 +11,13 @@ protocol BoardViewDelegate {
     func handleTap(row: Int, col: Int, location: CGPoint)
 }
 
+protocol PiecePositionUpdateDelegate {
+    func removePieceFromBoardAt(pieceCoords: PieceCoords)
+    func dragOverSquareAt(pieceCoords: PieceCoords)
+    func dropOnSquareAt(pieceCoords: PieceCoords)
+}
+
+
 protocol PieceDragDelegateProtocol {
     func pieceDrag(piece: UIImageView, row: Int, col: Int)
     func piecePickUp(piece: UIImageView, row: Int, col: Int)
@@ -20,7 +27,7 @@ class BoardView: UIView {
     var delegate: BoardViewDelegate?
     
     var squares: [Square] = []
-    
+    var updatePositionDelegate: PiecePositionUpdateDelegate?
     
     private var xOffset: CGFloat = 0.0
     private var yOffset: CGFloat = 0.0
@@ -29,8 +36,6 @@ class BoardView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         renderBoardSquares()
-        createTapListener()
-//        test_king = UIImageView(image: UIImage(named: "black_king"))
     
     }
     
@@ -40,16 +45,15 @@ class BoardView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        formatBoardSquares()
+    }
+    
+    func formatBoardSquares(){
         for square in squares {
             let squareFrame = createFrame(pieceCoords: square.boardCoords!)
             square.frame = squareFrame
         }
-        
-//        test_king.isUserInteractionEnabled = true
-//        addSubview(test_king)
-        
     }
-    
 }
 
 extension BoardView {
@@ -134,6 +138,7 @@ extension BoardView {
             for col in 0..<8 {
                 if let pieceKeyAtCurrentSquare = newArrangement[row][col] {
                     let pieceImage = PieceData.getPieceImage(pieceKey: pieceKeyAtCurrentSquare)
+                    pieceImage.delegate = self
                     addPieceImageToBoard(pieceImage: pieceImage, coords: PieceCoords(row: row, col: col))
                 }
             }
@@ -153,10 +158,31 @@ extension BoardView {
     
 //    should be private in future
     func createFrame(pieceCoords: PieceCoords) -> CGRect {
-        let originX = CGFloat(pieceCoords.row) * squareSize.width
-        let originY = CGFloat(pieceCoords.col) * squareSize.height
+        let originY = CGFloat(pieceCoords.row) * squareSize.width
+        let originX = CGFloat(pieceCoords.col) * squareSize.height
         let offset = CGPoint(x: originX, y: originY)
         return CGRect(origin: offset, size: squareSize)
+    }
+    
+    
+}
+
+extension BoardView: PieceImageOnBoardDelegate {
+    func findCoordsOfTouchedPiece(touchedPoint: CGPoint) -> PieceCoords {
+        let row = Int(touchedPoint.y / squareSize.height)
+        let col = Int(touchedPoint.x / squareSize.width)
+        
+        return PieceCoords(row: row, col: col)
+    }
+    
+    func beginPieceMove(startingPosition: CGPoint) {
+        let startingCoords = findCoordsOfTouchedPiece(touchedPoint: startingPosition)
+        self.updatePositionDelegate?.removePieceFromBoardAt(pieceCoords: startingCoords)
+    }
+    
+    func endPieceMove(endingPosition: CGPoint) {
+        let endingCoords = findCoordsOfTouchedPiece(touchedPoint: endingPosition)
+        self.updatePositionDelegate?.dropOnSquareAt(pieceCoords: endingCoords)
     }
     
     
