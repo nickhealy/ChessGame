@@ -18,6 +18,7 @@ protocol PieceImageOnBoardDelegate {
 //    func didDropPiece(pieceCoords: PieceCoords)
     func beginPieceMove(startingPosition: CGPoint)
     func endPieceMove(endingPosition: CGPoint)
+    func getNewFrameForPieceImage(endingPosition: CGPoint) -> CGRect
 }
 
 class PieceImage: UIImageView {
@@ -66,8 +67,15 @@ class PieceImage: UIImageView {
         if let touch = touches.first {
             let point = getPointFromTouch(touch: touch)
             delegate?.endPieceMove(endingPosition: point)
+            centerPieceInSquare(newPosition: point)
         }
         
+    }
+    
+    func centerPieceInSquare(newPosition: CGPoint) {
+        if let newFrameOnBoard = delegate?.getNewFrameForPieceImage(endingPosition: newPosition) {
+            self.frame = newFrameOnBoard
+        }
     }
     
     func getPointFromTouch(touch: UITouch) -> CGPoint {

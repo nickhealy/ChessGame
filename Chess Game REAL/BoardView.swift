@@ -185,5 +185,8 @@ extension BoardView: PieceImageOnBoardDelegate {
         self.updatePositionDelegate?.dropOnSquareAt(pieceCoords: endingCoords)
     }
     
-    
+    func getNewFrameForPieceImage(endingPosition: CGPoint) -> CGRect {
+        let endingCoords = findCoordsOfTouchedPiece(touchedPoint: endingPosition)
+        return createFrame(pieceCoords: endingCoords)
+    }
 }
