@@ -18,6 +18,7 @@ protocol PieceImageOnBoardDelegate {
 //    func didDropPiece(pieceCoords: PieceCoords)
     func beginPieceMove(startingPosition: CGPoint)
     func endPieceMove(endingPosition: CGPoint)
+    func isOutsideBounds(droppedPosition: CGPoint) -> Bool
     func getNewFrameForPieceImage(endingPosition: CGPoint) -> CGRect
 }
 
@@ -25,7 +26,8 @@ class PieceImage: UIImageView {
     var coords: PieceCoords?
     private var offsetX: CGFloat = 0.0
     private var offsetY: CGFloat = 0.0
-    
+    private var startingPosition: CGRect?
+    private var isOutsideBoardView: Bool = false
     
     var delegate: PieceImageOnBoardDelegate?
     
@@ -40,7 +42,7 @@ class PieceImage: UIImageView {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print("BEING CALLED")
+        rememberStartingPosition()
         if let touch = touches.first {
             let point = getPointFromTouch(touch: touch)
             offsetX = point.x - self.center.x
@@ -52,24 +54,61 @@ class PieceImage: UIImageView {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if isOutsideBoardView {
+            return
+        }
         if let touch = touches.first {
             let point = getPointFromTouch(touch: touch)
+            if movedPointOutsideBoard(droppedPoint: point) {
+                isOutsideBoardView = true
+                returnPieceToStartingPosition()
+                return
+            }
+            
             self.center = CGPoint(x: point.x - self.offsetX, y: point.y - self.offsetY)
+            
+            
         }
 //        todo: make this work so it gets passsed a location instead
 //        pieceImageDelegate?.isMovingPiece(pieceCoods: coords)
     }
     
+    func rememberStartingPosition() {
+        print("calling remember starting position with --> \(self.frame)")
+        self.startingPosition = self.frame
+    }
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if isOutsideBoardView {
+            isOutsideBoardView = false
+            return
+        }
         self.touchesMoved(touches, with: event)
 //        todo: make this work so it gets passed a location as well
 //        pieceImageDelegate?.didDropPiece(pieceCoords: self.coords)
         if let touch = touches.first {
             let point = getPointFromTouch(touch: touch)
+            
             delegate?.endPieceMove(endingPosition: point)
             centerPieceInSquare(newPosition: point)
+            
         }
         
+    }
+    
+    func returnPieceToStartingPosition() {
+        print("called")
+        print(self.startingPosition)
+        self.frame = self.startingPosition!
+        self.startingPosition = nil
+    }
+    
+    func movedPointOutsideBoard(droppedPoint: CGPoint) -> Bool {
+        let isOutside = delegate?.isOutsideBounds(droppedPosition: droppedPoint)
+        if isOutside != nil {
+            return isOutside!
+        }
+        return true
     }
     
     func centerPieceInSquare(newPosition: CGPoint) {

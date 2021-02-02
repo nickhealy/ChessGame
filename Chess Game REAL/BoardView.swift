@@ -168,6 +168,7 @@ extension BoardView {
 }
 
 extension BoardView: PieceImageOnBoardDelegate {
+    
     func findCoordsOfTouchedPiece(touchedPoint: CGPoint) -> PieceCoords {
         let row = Int(touchedPoint.y / squareSize.height)
         let col = Int(touchedPoint.x / squareSize.width)
@@ -178,6 +179,10 @@ extension BoardView: PieceImageOnBoardDelegate {
     func beginPieceMove(startingPosition: CGPoint) {
         let startingCoords = findCoordsOfTouchedPiece(touchedPoint: startingPosition)
         self.updatePositionDelegate?.removePieceFromBoardAt(pieceCoords: startingCoords)
+    }
+    
+    func isOutsideBounds(droppedPosition: CGPoint) -> Bool {
+        return !self.bounds.contains(droppedPosition)
     }
     
     func endPieceMove(endingPosition: CGPoint) {
