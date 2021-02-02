@@ -13,7 +13,7 @@ protocol BoardViewDelegate {
 
 protocol PiecePositionUpdateDelegate {
     func removePieceFromBoardAt(pieceCoords: PieceCoords)
-    func dragOverSquareAt(pieceCoords: PieceCoords)
+    func getSideOfSquareOccupant(pieceCoords: PieceCoords) -> Colors?
     func dropOnSquareAt(pieceCoords: PieceCoords)
 }
 
@@ -185,6 +185,25 @@ extension BoardView: PieceImageOnBoardDelegate {
         return !self.bounds.contains(droppedPosition)
     }
     
+    func dragOverPointAt(point: CGPoint) {
+        let draggedCoords = findCoordsOfTouchedPiece(touchedPoint: point)
+        let squareOccupiedBy = self.updatePositionDelegate?.getSideOfSquareOccupant(pieceCoords: draggedCoords)
+        
+        let hoveredSquare = getSquareFromBoardCoords(draggedCoords: draggedCoords)
+        switch squareOccupiedBy {
+        case .black:
+            hoveredSquare.backgroundColor = .systemPink
+        case .white:
+            hoveredSquare.backgroundColor = .green
+        default:
+            hoveredSquare.backgroundColor = .blue
+        }
+    }
+    
+    func getSquareFromBoardCoords(draggedCoords: PieceCoords) -> Square {
+        let index = draggedCoords.row*8 + draggedCoords.col
+        return squares[index]
+    }
     func endPieceMove(endingPosition: CGPoint) {
         let endingCoords = findCoordsOfTouchedPiece(touchedPoint: endingPosition)
         self.updatePositionDelegate?.dropOnSquareAt(pieceCoords: endingCoords)
@@ -195,3 +214,4 @@ extension BoardView: PieceImageOnBoardDelegate {
         return createFrame(pieceCoords: endingCoords)
     }
 }
+

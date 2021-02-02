@@ -20,6 +20,7 @@ protocol PieceImageOnBoardDelegate {
     func endPieceMove(endingPosition: CGPoint)
     func isOutsideBounds(droppedPosition: CGPoint) -> Bool
     func getNewFrameForPieceImage(endingPosition: CGPoint) -> CGRect
+    func dragOverPointAt(point: CGPoint)
 }
 
 class PieceImage: UIImageView {
@@ -60,21 +61,21 @@ class PieceImage: UIImageView {
         if let touch = touches.first {
             let point = getPointFromTouch(touch: touch)
             if movedPointOutsideBoard(droppedPoint: point) {
-                isOutsideBoardView = true
-                returnPieceToStartingPosition()
+                terminateMovement()
                 return
             }
-            
+                
             self.center = CGPoint(x: point.x - self.offsetX, y: point.y - self.offsetY)
-            
-            
+            delegate?.dragOverPointAt(point: point)
         }
-//        todo: make this work so it gets passsed a location instead
-//        pieceImageDelegate?.isMovingPiece(pieceCoods: coords)
+    }
+    
+    func terminateMovement() {
+        isOutsideBoardView = true
+        returnPieceToStartingPosition()
     }
     
     func rememberStartingPosition() {
-        print("calling remember starting position with --> \(self.frame)")
         self.startingPosition = self.frame
     }
     
@@ -97,8 +98,6 @@ class PieceImage: UIImageView {
     }
     
     func returnPieceToStartingPosition() {
-        print("called")
-        print(self.startingPosition)
         self.frame = self.startingPosition!
         self.startingPosition = nil
     }

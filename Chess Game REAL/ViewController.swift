@@ -81,8 +81,17 @@ extension ViewController: PieceDragDelegateProtocol {
 }
 
 extension ViewController: PiecePositionUpdateDelegate {
-    func dragOverSquareAt(pieceCoords: PieceCoords) {
-        return
+    func getSideOfSquareOccupant(pieceCoords: PieceCoords) -> Colors? {
+        let currentRow = pieceCoords.row
+        let currentCol = pieceCoords.col
+        
+        if let keyOfOccupant = boardModel.currentArrangement[currentRow][currentCol] {
+            let occupyingPiece = PieceData.getPiece(piecekey: keyOfOccupant)
+            let colorOfOccupyingPiece = occupyingPiece.color
+            return colorOfOccupyingPiece
+        }
+        return nil
+    
     }
     
     func dropOnSquareAt(pieceCoords: PieceCoords ) {

@@ -13,7 +13,7 @@ class BoardModel {
 //            [.w_rook_1, .w_knight_1, .w_bishop_1, .w_queen, .w_king, .w_bishop_2, .w_knight_2, .w_rook_2],
 //            [.w_pawn_1, .w_pawn_2, .w_pawn_3, .w_pawn_4, .w_pawn_5, .w_pawn_6, .w_pawn_7, .w_pawn_8,],
             [nil, nil, nil, nil, nil, nil, nil, nil],
-            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, .w_king, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, .b_king, nil, nil, nil, nil],
