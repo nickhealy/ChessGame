@@ -7,21 +7,44 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+struct SelectedPiece {
+    var key: PieceKeys
+    var image: PieceImage
+    var originalPosition: PieceCoords
     
+//    init(coords: PieceCoords, image: PieceImage, key: PieceKeys) {
+//        self.originalPosition = coords
+//        self.key = key
+//        self.image = image
+//    }
+}
+
+protocol PieceImagePositionManager {
+        func returnToStartingPosition()
+}
+
+protocol PiecePositionDelegate {
+    func getPieceAt(pieceCoords: PieceCoords) -> PieceKeys?
+    func movePieceTo(piece: PieceKeys, newCoords: PieceCoords)
+    func removePieceAt(pieceCoords : PieceCoords)
+}
+    
+
+class ViewController: UIViewController {
+    var selectedPiece: SelectedPiece?
     var boardView: BoardView?
-    var boardModel = BoardModel()
-    var currentlySelectedPiece: PieceKeys?
+    var boardModel: BoardModel?
+    
+    var positionInModelDelegate: PiecePositionDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         view.backgroundColor = .cyan
         createBoard()
-        
-        boardView?.delegate = self
-        boardView?.dragDelegate = self
+        boardModel = BoardModel()
         boardView?.updatePositionDelegate = self
+        positionInModelDelegate = boardModel
     }
     
 //    by this point we will have calculated the measurements of each square
@@ -30,7 +53,7 @@ class ViewController: UIViewController {
     }
     
     private func layoutStartingArrangement() {
-        let startingArragement = boardModel.currentArrangement
+        guard let startingArragement = boardModel?.getCurrentPieceArrangement() else { return }
 //        updateCoordsOfPiecesToArrangement(pieceArrangement)
         boardView?.addPieceImagesToBoard(newArrangement: startingArragement)
 
@@ -51,41 +74,14 @@ class ViewController: UIViewController {
     }
     
 //    func updateBoard() {
-//        boardView?.showPieceArrangement(newArrangement: boardModel.currentArrangement)
+//        boardView?.showPieceArrangement(newArrangement: BoardModel.currentArrangement)
 //    }
 }
 
-extension ViewController: BoardViewDelegate {
-    
-    func handleTap(row: Int, col: Int, location: CGPoint) {
-        print("tap handled. row: \(row), col: \(col)")
-        guard let pieceKey = boardModel.currentArrangement[row][col] else {
-            return
-        }
-        let piece = PieceFuncs.getPiece(key: pieceKey)
-        print("tapped \(piece.name) of color \(piece.color)")
-    }
-}
-
-extension ViewController: PieceDragDelegateProtocol {
-    
-    func piecePickUp(piece: UIImageView, row: Int, col: Int) {
-        boardModel.currentArrangement[row][col] = nil
-    }
-    
-    func pieceDrag(piece: UIImageView, row: Int, col: Int) {
-        boardModel.currentArrangement[row][col] = PieceKeys.b_king
-        print(boardModel.currentArrangement)
-//        todo : this! s
-    }
-}
-
 extension ViewController: PiecePositionUpdateDelegate {
+    
     func getSideOfSquareOccupant(pieceCoords: PieceCoords) -> Colors? {
-        let currentRow = pieceCoords.row
-        let currentCol = pieceCoords.col
-        
-        if let keyOfOccupant = boardModel.currentArrangement[currentRow][currentCol] {
+        if let keyOfOccupant = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords) {
             let occupyingPiece = PieceData.getPiece(piecekey: keyOfOccupant)
             let colorOfOccupyingPiece = occupyingPiece.color
             return colorOfOccupyingPiece
@@ -95,44 +91,63 @@ extension ViewController: PiecePositionUpdateDelegate {
     }
     
     func dropOnSquareAt(pieceCoords: PieceCoords ) {
-        let droppedRow = pieceCoords.row
-        let droppedCol = pieceCoords.col
-        boardModel.currentArrangement[droppedRow][droppedCol] = self.currentlySelectedPiece
-        print(boardModel.currentArrangement)
-        currentlySelectedPiece = nil
+        if let selectedPiece = self.selectedPiece {
+            if (isCollision(droppedCoords: pieceCoords)) {
+                print("COLLSION")
+                if (isFriendlyCollsion(droppedCoords: pieceCoords)) {
+                    print("FRIENDLY COLLISION")
+                    returnPieceToOriginalPositionInModel()
+                    
+                } else {
+                    positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: pieceCoords)
+                    print("NOT FRIENDLY COLLISION")
+                }
+            } else {
+                print("NO COLLISION")
+                positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: pieceCoords)
+            }
+        }
+        deselectPiece()
     }
     
-    func removePieceFromBoardAt(pieceCoords: PieceCoords) {
-        let touchedRow = pieceCoords.row
-        let touchedCol = pieceCoords.col
-        print("touched : \(touchedRow), \(touchedCol)")
-        
-        let selectedPiece = boardModel.currentArrangement[touchedRow][touchedCol]
-        currentlySelectedPiece = selectedPiece
-        
-        boardModel.currentArrangement[touchedRow][touchedCol] = nil
-        
+    func deselectPiece() {
+        self.selectedPiece = nil
     }
     
-    
-    func didTouchPiece(pieceCoords: PieceCoords) {
-//      remove the piece from the BoardModel
-        let touchedRow = pieceCoords.row
-        let touchedCol = pieceCoords.col
-        print("here i am")
-        boardModel.currentArrangement[touchedRow][touchedCol] = nil
-        print(boardModel.currentArrangement)
+    func selectPieceAt(pieceCoords: PieceCoords) {
+        if let newSelectedPiece = createNewSelectedPiece(coords: pieceCoords) {
+            selectedPiece = newSelectedPiece
+            positionInModelDelegate?.removePieceAt(pieceCoords: pieceCoords)
+        }
     }
     
-    func isMovingPiece(pieceCoods: PieceCoords) {
-        return
+    private func createNewSelectedPiece(coords: PieceCoords) -> SelectedPiece? {
+        guard let pieceKey = positionInModelDelegate?.getPieceAt(pieceCoords: coords) else { return nil }
+        let pieceImage = PieceData.getPieceImage(pieceKey: pieceKey)
+        return SelectedPiece(key: pieceKey, image: pieceImage, originalPosition: coords)
     }
     
-    func didDropPiece(pieceCoords: PieceCoords) {
-        return
+    func returnPieceToOriginalPositionInModel() {
+        if let selectedPiece = self.selectedPiece {
+//            let selectedPieceKey = PieceData.getPieceCoordsFromImage(image: selectedPiece)
+            positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: selectedPiece.originalPosition)
+            deselectPiece()
+        }
     }
     
+    func getSelectedPieceKey() -> PieceKeys? {
+        return self.selectedPiece?.key
+    }
     
+    func isCollision(droppedCoords: PieceCoords) -> Bool {
+        return positionInModelDelegate?.getPieceAt(pieceCoords: droppedCoords) != nil
+    }
+    
+    func isFriendlyCollsion(droppedCoords: PieceCoords) -> Bool {
+        let targetPieceKey = positionInModelDelegate?.getPieceAt(pieceCoords: droppedCoords)
+        let selectedPieceKey = selectedPiece!.key
+        return PieceData.getPieceColorFromKey(piecekey: targetPieceKey!) == PieceData.getPieceColorFromKey(piecekey: selectedPieceKey)
+    }
 }
 
 

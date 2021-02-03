@@ -21,6 +21,7 @@ protocol PieceImageOnBoardDelegate {
     func isOutsideBounds(droppedPosition: CGPoint) -> Bool
     func getNewFrameForPieceImage(endingPosition: CGPoint) -> CGRect
     func dragOverPointAt(point: CGPoint)
+    func cancelMovementOnBoard()
 }
 
 class PieceImage: UIImageView {
@@ -72,6 +73,7 @@ class PieceImage: UIImageView {
     
     func terminateMovement() {
         isOutsideBoardView = true
+        delegate?.cancelMovementOnBoard()
         returnPieceToStartingPosition()
     }
     
@@ -124,7 +126,4 @@ class PieceImage: UIImageView {
     func saveNewCoords(coords: PieceCoords) {
         self.coords = coords
     }
-    
-    
-    
 }

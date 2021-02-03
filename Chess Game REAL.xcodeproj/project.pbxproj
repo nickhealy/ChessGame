@@ -14,7 +14,6 @@
 		240994FC25B6282100A16247 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240994FB25B6282100A16247 /* BoardView.swift */; };
 		240994FF25B6318000A16247 /* Square.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240994FE25B6318000A16247 /* Square.swift */; };
 		2409950325B6488500A16247 /* Piece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2409950225B6488500A16247 /* Piece.swift */; };
-		2467686625BE6311001437BE /* PieceFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2467686525BE6311001437BE /* PieceFuncs.swift */; };
 		24B17C0C25C5290F000A80B2 /* PieceImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B17C0B25C5290F000A80B2 /* PieceImage.swift */; };
 		24B17C0F25C60804000A80B2 /* PiecesData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B17C0E25C60803000A80B2 /* PiecesData.swift */; };
 		24E7E57A25B9472800FD9172 /* BoardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E7E57925B9472800FD9172 /* BoardModel.swift */; };
@@ -30,7 +29,6 @@
 		240994FB25B6282100A16247 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		240994FE25B6318000A16247 /* Square.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Square.swift; sourceTree = "<group>"; };
 		2409950225B6488500A16247 /* Piece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Piece.swift; sourceTree = "<group>"; };
-		2467686525BE6311001437BE /* PieceFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieceFuncs.swift; sourceTree = "<group>"; };
 		24B17C0B25C5290F000A80B2 /* PieceImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieceImage.swift; sourceTree = "<group>"; };
 		24B17C0E25C60803000A80B2 /* PiecesData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PiecesData.swift; sourceTree = "<group>"; };
 		24E7E57925B9472800FD9172 /* BoardModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardModel.swift; sourceTree = "<group>"; };
@@ -75,7 +73,6 @@
 				24B17C0E25C60803000A80B2 /* PiecesData.swift */,
 				240994FE25B6318000A16247 /* Square.swift */,
 				2409950225B6488500A16247 /* Piece.swift */,
-				2467686525BE6311001437BE /* PieceFuncs.swift */,
 				240994E525B3AABF00A16247 /* Assets.xcassets */,
 				240994EA25B3AABF00A16247 /* Info.plist */,
 			);
@@ -150,7 +147,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2467686625BE6311001437BE /* PieceFuncs.swift in Sources */,
 				240994FF25B6318000A16247 /* Square.swift in Sources */,
 				240994E125B3AABE00A16247 /* ViewController.swift in Sources */,
 				24B17C0C25C5290F000A80B2 /* PieceImage.swift in Sources */,
