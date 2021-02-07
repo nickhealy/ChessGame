@@ -19,8 +19,9 @@ struct SelectedPiece {
 //    }
 }
 
-protocol PieceImagePositionManager {
-        func returnToStartingPosition()
+protocol BoardUIDelegate {
+    func returnPieceImageToStartingPosition()
+    func removePieceImageFromBoardAt(enemyPieceKey: PieceKeys)
 }
 
 protocol PiecePositionDelegate {
@@ -36,6 +37,7 @@ class ViewController: UIViewController {
     var boardModel: BoardModel?
     
     var positionInModelDelegate: PiecePositionDelegate?
+    var boardUIDelegate: BoardUIDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,6 +47,7 @@ class ViewController: UIViewController {
         boardModel = BoardModel()
         boardView?.updatePositionDelegate = self
         positionInModelDelegate = boardModel
+        boardUIDelegate = boardView
     }
     
 //    by this point we will have calculated the measurements of each square
@@ -99,8 +102,10 @@ extension ViewController: PiecePositionUpdateDelegate {
                     returnPieceToOriginalPositionInModel()
                     
                 } else {
+                    print("NOT A FRIENDLY COLLISION")
+                    let keyOfPieceToBeTaken = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords)
                     positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: pieceCoords)
-                    print("NOT FRIENDLY COLLISION")
+                    boardUIDelegate?.removePieceImageFromBoardAt(enemyPieceKey: keyOfPieceToBeTaken!)
                 }
             } else {
                 print("NO COLLISION")

@@ -200,3 +200,17 @@ extension BoardView: PieceImageOnBoardDelegate {
         return createFrame(pieceCoords: endingCoords)
     }
 }
+
+extension BoardView: BoardUIDelegate {
+    func returnPieceImageToStartingPosition() {
+        return
+    }
+    
+    func removePieceImageFromBoardAt(enemyPieceKey: PieceKeys) {
+        let pieceImage = PieceData.getPieceImage(pieceKey: enemyPieceKey)
+        pieceImage.removeFromSuperview()
+        print("should be removing piece")
+    }
+    
+    
+}
