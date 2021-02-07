@@ -11,8 +11,8 @@ class BoardModel: PiecePositionDelegate {
         [nil, .w_king, nil, nil, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, .w_rook_1],
         [nil, nil, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, .b_king, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, .b_pawn_1, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, nil],
     ]

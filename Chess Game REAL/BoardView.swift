@@ -12,7 +12,7 @@ protocol PiecePositionUpdateDelegate {
     func getSelectedPieceKey() -> PieceKeys?
     func getSideOfSquareOccupant(pieceCoords: PieceCoords) -> Colors?
     func dropOnSquareAt(pieceCoords: PieceCoords)
-    func returnPieceToOriginalPositionInModel()
+    func handleCancellingDrag()
 }
 
 class BoardView: UIView {
@@ -56,6 +56,7 @@ extension BoardView {
 //                alternate black and white
                 let color = isBlack ? Colors.black: Colors.white
                 let square = Square(color: color, boardCoords: PieceCoords(row: row, col: col))
+                square.layer.zPosition = 0.00
                 isBlack = !isBlack
                 
 //               adds view to ui
@@ -81,6 +82,7 @@ extension BoardView {
     func addPieceImageToBoard(pieceImage: PieceImage, coords: PieceCoords) {
         let pieceImageFrame = createFrame(pieceCoords: coords)
         pieceImage.frame = pieceImageFrame
+        pieceImage.layer.zPosition = 1.0
         addSubview(pieceImage)
     }
     
@@ -101,7 +103,6 @@ extension BoardView {
 }
 
 extension BoardView: PieceImageOnBoardDelegate {
-    
     func beginPieceMove(startingPosition: CGPoint) {
         let startingCoords = createPieceCoordsFromTouchedPoint(touchedPoint: startingPosition)
         self.updatePositionDelegate?.selectPieceAt(pieceCoords: startingCoords)
@@ -111,14 +112,13 @@ extension BoardView: PieceImageOnBoardDelegate {
     
     func raiseSelectedPiece() {
         if let selectedPieceImage = getSelectedPieceImage() {
-            selectedPieceImage.layer.zPosition = 1.0
+            selectedPieceImage.layer.zPosition = 5.0
         }
     }
     
     func lowerSelectedPiece() {
         if let selectedPieceImage = getSelectedPieceImage() {
-            print("lowering piece")
-            selectedPieceImage.layer.zPosition = 0.0
+            selectedPieceImage.layer.zPosition = 1.0
         }
     }
     
@@ -171,11 +171,25 @@ extension BoardView: PieceImageOnBoardDelegate {
         return newHintColor!
     }
     
-    func isOutsideBounds(droppedPosition: CGPoint) -> Bool {
-        return !self.bounds.contains(droppedPosition)
+    func isOutsideBounds(point: CGPoint) -> Bool {
+        return !self.bounds.contains(point)
     }
     
-    func endPieceMove(endingPosition: CGPoint) {
+    func stopMovementIfOutsideBounds(currentPositionOnScreen: CGPoint) {
+        if (isOutsideBounds(point: currentPositionOnScreen)) {
+            cancelMovementOnBoard()
+        } else {
+            return 
+        }
+    }
+    
+    func cancelMovementOnBoard() {
+        updatePositionDelegate?.handleCancellingDrag()
+        self.lowerSelectedPiece()
+        removeSquareHint()
+    }
+    
+    func checkFinalPositionAndEndMove(endingPosition: CGPoint) {
         removeSquareHint()
         self.lowerSelectedPiece()
         let endingCoords = createPieceCoordsFromTouchedPoint(touchedPoint: endingPosition)
@@ -185,32 +199,17 @@ extension BoardView: PieceImageOnBoardDelegate {
     func removeSquareHint() {
         self.squareHint?.removeFromSuperview()
     }
-    
-    func cancelMovementOnBoard() {
-        removeSquareHint()
-        self.updatePositionDelegate?.returnPieceToOriginalPositionInModel()
-    }
-    
-    func cancelSquareHints() {
-        cancelMovementOnBoard()
-    }
-    
-    func getNewFrameForPieceImage(endingPosition: CGPoint) -> CGRect {
-        let endingCoords = createPieceCoordsFromTouchedPoint(touchedPoint: endingPosition)
+
+    func getNewFrameForPieceImage(endingCoords: PieceCoords) -> CGRect {
+//        let endingCoords = createPieceCoordsFromTouchedPoint(touchedPoint: endingPosition)
         return createFrame(pieceCoords: endingCoords)
     }
 }
 
 extension BoardView: BoardUIDelegate {
-    func returnPieceImageToStartingPosition() {
-        return
-    }
-    
     func removePieceImageFromBoardAt(enemyPieceKey: PieceKeys) {
         let pieceImage = PieceData.getPieceImage(pieceKey: enemyPieceKey)
         pieceImage.removeFromSuperview()
-        print("should be removing piece")
     }
-    
-    
+
 }

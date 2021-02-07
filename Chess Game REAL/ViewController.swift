@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  Chess Game REAL
 //
-//  Created by Josh Davis on 1/16/21.
+//  Created by Nick Healy on 1/16/21.
 //
 
 import UIKit
@@ -11,16 +11,9 @@ struct SelectedPiece {
     var key: PieceKeys
     var image: PieceImage
     var originalPosition: PieceCoords
-    
-//    init(coords: PieceCoords, image: PieceImage, key: PieceKeys) {
-//        self.originalPosition = coords
-//        self.key = key
-//        self.image = image
-//    }
 }
 
 protocol BoardUIDelegate {
-    func returnPieceImageToStartingPosition()
     func removePieceImageFromBoardAt(enemyPieceKey: PieceKeys)
 }
 
@@ -28,6 +21,12 @@ protocol PiecePositionDelegate {
     func getPieceAt(pieceCoords: PieceCoords) -> PieceKeys?
     func movePieceTo(piece: PieceKeys, newCoords: PieceCoords)
     func removePieceAt(pieceCoords : PieceCoords)
+}
+
+protocol PieceImageMovementDelegate {
+    func returnPieceToStartingPosition()
+    func cancelPieceImageMovementAndReturnToOriginalPosition()
+    func moveImageTo(newCoords: PieceCoords)
 }
     
 
@@ -76,13 +75,9 @@ class ViewController: UIViewController {
         boardView.centerYAnchor.constraint(equalTo: view.layoutMarginsGuide.centerYAnchor).isActive = true
     }
     
-//    func updateBoard() {
-//        boardView?.showPieceArrangement(newArrangement: BoardModel.currentArrangement)
-//    }
 }
 
 extension ViewController: PiecePositionUpdateDelegate {
-    
     func getSideOfSquareOccupant(pieceCoords: PieceCoords) -> Colors? {
         if let keyOfOccupant = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords) {
             let occupyingPiece = PieceData.getPiece(piecekey: keyOfOccupant)
@@ -93,31 +88,7 @@ extension ViewController: PiecePositionUpdateDelegate {
     
     }
     
-    func dropOnSquareAt(pieceCoords: PieceCoords ) {
-        if let selectedPiece = self.selectedPiece {
-            if (isCollision(droppedCoords: pieceCoords)) {
-                print("COLLSION")
-                if (isFriendlyCollsion(droppedCoords: pieceCoords)) {
-                    print("FRIENDLY COLLISION")
-                    returnPieceToOriginalPositionInModel()
-                    
-                } else {
-                    print("NOT A FRIENDLY COLLISION")
-                    let keyOfPieceToBeTaken = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords)
-                    positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: pieceCoords)
-                    boardUIDelegate?.removePieceImageFromBoardAt(enemyPieceKey: keyOfPieceToBeTaken!)
-                }
-            } else {
-                print("NO COLLISION")
-                positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: pieceCoords)
-            }
-        }
-        deselectPiece()
-    }
-    
-    func deselectPiece() {
-        self.selectedPiece = nil
-    }
+//    MARK: Selecting A Piece
     
     func selectPieceAt(pieceCoords: PieceCoords) {
         if let newSelectedPiece = createNewSelectedPiece(coords: pieceCoords) {
@@ -132,28 +103,97 @@ extension ViewController: PiecePositionUpdateDelegate {
         return SelectedPiece(key: pieceKey, image: pieceImage, originalPosition: coords)
     }
     
-    func returnPieceToOriginalPositionInModel() {
-        if let selectedPiece = self.selectedPiece {
-//            let selectedPieceKey = PieceData.getPieceCoordsFromImage(image: selectedPiece)
-            positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: selectedPiece.originalPosition)
-            deselectPiece()
-        }
-    }
-    
     func getSelectedPieceKey() -> PieceKeys? {
         return self.selectedPiece?.key
     }
     
+    func dropOnSquareAt(pieceCoords: PieceCoords ) {
+        
+        if (isCollision(droppedCoords: pieceCoords)) {
+            if (isFriendlyCollsion(droppedCoords: pieceCoords)) {
+                handleFriendlyCollision()
+            } else {
+                takeEnemyPieceAt(pieceCoords: pieceCoords)
+            }
+        } else {
+            handlePieceMovementInModelAndView(newCoords: pieceCoords)
+        }
+    }
+    
+//    MARK: Regular Movement
+
+    func handlePieceMovementInModelAndView(newCoords: PieceCoords) {
+        if let selectedPiece = self.selectedPiece {
+            positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: newCoords)
+            movePieceImageTo(newCoords: newCoords)
+            deselectPiece()
+        }
+    }
+    
+    func movePieceImageTo(newCoords: PieceCoords) {
+        let pieceImageDelegate: PieceImageMovementDelegate = selectedPiece!.image
+        pieceImageDelegate.moveImageTo(newCoords: newCoords)
+    }
+    
+    func deselectPiece() {
+        self.selectedPiece = nil
+    }
+    
+    func takeEnemyPieceAt(pieceCoords: PieceCoords) {
+        let keyOfPieceToBeTaken = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords)
+        positionInModelDelegate?.movePieceTo(piece: selectedPiece!.key, newCoords: pieceCoords)
+        movePieceImageTo(newCoords: pieceCoords)
+        boardUIDelegate?.removePieceImageFromBoardAt(enemyPieceKey: keyOfPieceToBeTaken!)
+    }
+    
+    
     func isCollision(droppedCoords: PieceCoords) -> Bool {
         return positionInModelDelegate?.getPieceAt(pieceCoords: droppedCoords) != nil
     }
+    
+// MARK: Friendly Collision
     
     func isFriendlyCollsion(droppedCoords: PieceCoords) -> Bool {
         let targetPieceKey = positionInModelDelegate?.getPieceAt(pieceCoords: droppedCoords)
         let selectedPieceKey = selectedPiece!.key
         return PieceData.getPieceColorFromKey(piecekey: targetPieceKey!) == PieceData.getPieceColorFromKey(piecekey: selectedPieceKey)
     }
+    
+    func handleFriendlyCollision() {
+        tellImageToReturnToOriginalPosition()
+        returnPieceToOriginalPositionInModelAndDeselect()
+    }
+    
+    func tellImageToCancelMovementAndReturnToOriginalPostion() {
+        var temporaryImageDelegate: PieceImageMovementDelegate?
+        if let selectedPiece = selectedPiece {
+            temporaryImageDelegate = selectedPiece.image
+            temporaryImageDelegate?.cancelPieceImageMovementAndReturnToOriginalPosition()
+        }
+    }
+    
+    func returnPieceToOriginalPositionInModelAndDeselect() {
+        positionInModelDelegate?.movePieceTo(piece: selectedPiece!.key, newCoords: selectedPiece!.originalPosition)
+        deselectPiece()
+    }
+    
+//    MARK: Movement Off Board
+    
+    func handleCancellingDrag() {
+        tellImageToCancelMovementAndReturnToOriginalPostion()
+        returnPieceToOriginalPositionInModelAndDeselect()
+    }
+    
+    func tellImageToReturnToOriginalPosition() {
+        var temporaryImageDelegate: PieceImageMovementDelegate?
+        if let selectedPiece = selectedPiece {
+            
+            temporaryImageDelegate = selectedPiece.image
+            temporaryImageDelegate?.returnPieceToStartingPosition()
+        }
+    }
 }
+
 
 
 
