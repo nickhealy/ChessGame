@@ -7,10 +7,14 @@
 
 import UIKit
 
-struct SelectedPiece {
+struct SelectedPiece: Equatable {
     var key: PieceKeys
     var image: PieceImage
     var originalPosition: PieceCoords
+    
+    static func == (lhs: SelectedPiece, rhs: SelectedPiece) -> Bool {
+        return lhs.key == rhs.key && lhs.originalPosition == rhs.originalPosition
+    }
 }
 
 protocol BoardUIDelegate {
@@ -20,7 +24,8 @@ protocol BoardUIDelegate {
 protocol PiecePositionDelegate {
     func getPieceAt(pieceCoords: PieceCoords) -> PieceKeys?
     func movePieceTo(piece: PieceKeys, newCoords: PieceCoords)
-    func removePieceAt(pieceCoords : PieceCoords)
+    func removePieceAt(pieceCoords: PieceCoords)
+    func getCurrentPieceArrangement() -> [[PieceKeys?]]
 }
 
 protocol PieceImageMovementDelegate {
@@ -55,7 +60,7 @@ class ViewController: UIViewController {
     }
     
     private func layoutStartingArrangement() {
-        guard let startingArragement = boardModel?.getCurrentPieceArrangement() else { return }
+        guard let startingArragement = positionInModelDelegate?.getCurrentPieceArrangement() else { return }
 //        updateCoordsOfPiecesToArrangement(pieceArrangement)
         boardView?.addPieceImagesToBoard(newArrangement: startingArragement)
 
@@ -93,7 +98,6 @@ extension ViewController: PiecePositionUpdateDelegate {
     func selectPieceAt(pieceCoords: PieceCoords) {
         if let newSelectedPiece = createNewSelectedPiece(coords: pieceCoords) {
             selectedPiece = newSelectedPiece
-            positionInModelDelegate?.removePieceAt(pieceCoords: pieceCoords)
         }
     }
     
@@ -141,6 +145,7 @@ extension ViewController: PiecePositionUpdateDelegate {
     
     func takeEnemyPieceAt(pieceCoords: PieceCoords) {
         let keyOfPieceToBeTaken = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords)
+        positionInModelDelegate?.removePieceAt(pieceCoords: pieceCoords)
         positionInModelDelegate?.movePieceTo(piece: selectedPiece!.key, newCoords: pieceCoords)
         movePieceImageTo(newCoords: pieceCoords)
         boardUIDelegate?.removePieceImageFromBoardAt(enemyPieceKey: keyOfPieceToBeTaken!)

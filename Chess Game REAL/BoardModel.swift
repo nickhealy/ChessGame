@@ -6,6 +6,17 @@
 //
 
 class BoardModel: PiecePositionDelegate {
+    static private var startingArrangement: [[PieceKeys?]] = [
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, .w_king, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, .w_rook_1],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, .b_pawn_1, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil, nil, nil, nil],
+    ]
+    
     private var currentArrangement: [[PieceKeys?]] = [
         [nil, nil, nil, nil, nil, nil, nil, nil],
         [nil, .w_king, nil, nil, nil, nil, nil, nil],
@@ -16,21 +27,21 @@ class BoardModel: PiecePositionDelegate {
         [nil, nil, nil, nil, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, nil],
     ]
+    
+    init(withArrangement: [[PieceKeys?]] = startingArrangement) {
+        self.currentArrangement = withArrangement
+    }
                
     internal func getPieceAt(pieceCoords: PieceCoords) -> PieceKeys? {
         return currentArrangement[pieceCoords.row][pieceCoords.col]
     }
     
     internal func movePieceTo(piece: PieceKeys, newCoords: PieceCoords) {
-        currentArrangement[newCoords.row][newCoords.col] = piece
-    }
-    
-    internal func getCurrentPieceArrangement() -> [[PieceKeys?]] {
-        return currentArrangement
-    }
-    
-    internal func removePieceAt(pieceCoords: PieceCoords) {
-        currentArrangement[pieceCoords.row][pieceCoords.col] = nil
+        if let currentCoords = getCoordsFromKey(key: piece) {
+            removePieceAt(pieceCoords: currentCoords)
+            currentArrangement[newCoords.row][newCoords.col] = piece
+        }
+        
     }
     
     private func getCoordsFromKey(key: PieceKeys) -> PieceCoords? {
@@ -41,7 +52,15 @@ class BoardModel: PiecePositionDelegate {
                 }
             }
         }
-        
+        print("ERROR: no coords found for \(key)")
         return nil
+    }
+    
+    internal func getCurrentPieceArrangement() -> [[PieceKeys?]] {
+        return currentArrangement
+    }
+    
+    internal func removePieceAt(pieceCoords: PieceCoords) {
+        currentArrangement[pieceCoords.row][pieceCoords.col] = nil
     }
 }

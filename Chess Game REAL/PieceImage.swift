@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct PieceCoords {
+struct PieceCoords: Equatable {
     var row: Int
     var col: Int
 }
@@ -57,16 +57,21 @@ class PieceImage: UIImageView, PieceImageMovementDelegate {
         if isMovementCancelled {
             return
         }
+        
         guard let touch = touches.first else { return }
         let touchedPoint = getPointFromTouch(touch: touch)
         delegate?.stopMovementIfOutsideBounds(currentPositionOnScreen: touchedPoint)
         
+        continueDragIfMovementNotCancelled(currentPoint: touchedPoint)
+    }
+    
+    func continueDragIfMovementNotCancelled(currentPoint: CGPoint) {
         if isMovementCancelled {
             return
         }
     
-        self.center = CGPoint(x: touchedPoint.x, y: touchedPoint.y)
-        delegate?.dragOverPointAt(point: touchedPoint)
+        self.center = CGPoint(x: currentPoint.x, y: currentPoint.y)
+        delegate?.dragOverPointAt(point: currentPoint)
     }
     
     func rememberStartingPosition() {
@@ -85,13 +90,18 @@ class PieceImage: UIImageView, PieceImageMovementDelegate {
         }
     }
     
-    func moveImageTo(newCoords: PieceCoords) {
-        centerPieceInSquare(squareAt: newCoords)
+    func cancelPieceImageMovementAndReturnToOriginalPosition() {
+        returnPieceToStartingPosition()
+        isMovementCancelled = true
     }
     
     func returnPieceToStartingPosition() {
         self.frame = self.startingPosition!
         self.startingPosition = nil
+    }
+    
+    func moveImageTo(newCoords: PieceCoords) {
+        centerPieceInSquare(squareAt: newCoords)
     }
     
     func centerPieceInSquare(squareAt: PieceCoords) {
@@ -100,12 +110,4 @@ class PieceImage: UIImageView, PieceImageMovementDelegate {
         }
     }
     
-    func saveNewCoords(coords: PieceCoords) {
-        self.coords = coords
-    }
-    
-    func cancelPieceImageMovementAndReturnToOriginalPosition() {
-        returnPieceToStartingPosition()
-        isMovementCancelled = true
-    }
 }

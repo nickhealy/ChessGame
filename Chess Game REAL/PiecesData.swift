@@ -7,6 +7,11 @@
 
 import UIKit
 
+struct PieceMoves {
+    let moves: [Int]
+    let recursive: Bool
+}
+
 class PieceData {
     private static var piecesByKey: [PieceKeys: Piece] = [
         .w_rook_1 : Piece(color: .white, name: .rook, key: .w_rook_1),
@@ -41,6 +46,10 @@ class PieceData {
         .b_pawn_6 : Piece(color: .black, name: .pawn, key: .b_pawn_6),
         .b_pawn_7 : Piece(color: .black, name: .pawn, key: .b_pawn_7),
         .b_pawn_8 : Piece(color: .black, name: .pawn, key: .b_pawn_8),
+    ]
+    
+    private let movesByPieceName: [PieceNames: PieceMoves] = [
+        .rook : PieceMoves(moves: [], recursive: true)
     ]
     
     static public func getPieceImage(pieceKey: PieceKeys) -> PieceImage {
