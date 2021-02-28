@@ -13,7 +13,7 @@ class BoardModelTests: XCTestCase {
     var testArrangement: [[PieceKeys?]] = [
         [nil, nil, nil, nil, nil, nil, nil, nil],
         [nil, .w_king, nil, nil, nil, nil, nil, nil],
-        [nil, nil, nil, nil, nil, nil, nil, .w_rook_1],
+        [nil, nil, nil, nil, nil, .w_rook_1, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, .b_pawn_1, nil, nil],
@@ -34,7 +34,7 @@ class BoardModelTests: XCTestCase {
         let expected: [[PieceKeys?]] = [
             [nil, nil, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, nil, nil, nil, nil, nil],
-            [nil, nil, nil, nil, nil, nil, nil, .w_rook_1],
+            [nil, nil, nil, nil, nil, .w_rook_1, nil, nil],
             [nil, nil, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, nil, nil, .b_pawn_1, nil, nil],
@@ -49,7 +49,7 @@ class BoardModelTests: XCTestCase {
         let expected: [[PieceKeys?]] = [
             [nil, nil, nil, nil, nil, nil, nil, nil],
             [nil, nil, .w_king, nil, nil, nil, nil, nil],
-            [nil, nil, nil, nil, nil, nil, nil, .w_rook_1],
+            [nil, nil, nil, nil, nil, .w_rook_1, nil, nil],
             [nil, nil, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, nil, nil, .b_pawn_1, nil, nil],
@@ -60,8 +60,6 @@ class BoardModelTests: XCTestCase {
         model?.movePieceTo(piece: .w_king, newCoords: PieceCoords(row: 1, col: 2))
         XCTAssertEqual(expected, model?.getCurrentPieceArrangement(), "moves passed in piece key to desired coords")
     }
-    
-    
 
     func testPerformanceExample() throws {
         // This is an example of a performance test case.

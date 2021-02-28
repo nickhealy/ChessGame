@@ -169,11 +169,12 @@ extension ViewController: PiecePositionUpdateDelegate {
         returnPieceToOriginalPositionInModelAndDeselect()
     }
     
-    func tellImageToCancelMovementAndReturnToOriginalPostion() {
+    func tellImageToReturnToOriginalPosition() {
         var temporaryImageDelegate: PieceImageMovementDelegate?
         if let selectedPiece = selectedPiece {
+            
             temporaryImageDelegate = selectedPiece.image
-            temporaryImageDelegate?.cancelPieceImageMovementAndReturnToOriginalPosition()
+            temporaryImageDelegate?.returnPieceToStartingPosition()
         }
     }
     
@@ -189,12 +190,11 @@ extension ViewController: PiecePositionUpdateDelegate {
         returnPieceToOriginalPositionInModelAndDeselect()
     }
     
-    func tellImageToReturnToOriginalPosition() {
+    func tellImageToCancelMovementAndReturnToOriginalPostion() {
         var temporaryImageDelegate: PieceImageMovementDelegate?
         if let selectedPiece = selectedPiece {
-            
             temporaryImageDelegate = selectedPiece.image
-            temporaryImageDelegate?.returnPieceToStartingPosition()
+            temporaryImageDelegate?.cancelPieceImageMovementAndReturnToOriginalPosition()
         }
     }
 }

@@ -39,14 +39,20 @@ class PieceImage: UIImageView, PieceImageMovementDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func setInitialPositionInUI(frame: CGRect) {
+        self.frame = frame
+        rememberNewStartingPosition()
+    }
+    
     func getPointFromTouch(touch: UITouch) -> CGPoint {
         let point = touch.location(in: self.superview)
         return point
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        rememberStartingPosition()
+        rememberNewStartingPosition()
         if let touch = touches.first {
+            print("touched at \(touch.location(in: window))")
             let point = getPointFromTouch(touch: touch)
             delegate?.beginPieceMove(startingPosition: point)
             
@@ -74,7 +80,8 @@ class PieceImage: UIImageView, PieceImageMovementDelegate {
         delegate?.dragOverPointAt(point: currentPoint)
     }
     
-    func rememberStartingPosition() {
+    func rememberNewStartingPosition() {
+        print("REMEMBERING")
         self.startingPosition = self.frame
     }
     
@@ -106,6 +113,7 @@ class PieceImage: UIImageView, PieceImageMovementDelegate {
     
     func centerPieceInSquare(squareAt: PieceCoords) {
         if let newFrameOnBoard = delegate?.getNewFrameForPieceImage(endingCoords: squareAt) {
+            print(newFrameOnBoard)
             self.frame = newFrameOnBoard
         }
     }

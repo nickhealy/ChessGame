@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "7E4FB076-DD88-4BA9-BE20-3C33E50B8C60",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Chess Game REAL.xcodeproj",
+        "identifier" : "24D7A36125E338DF002E8E74",
+        "name" : "PieceMovementUITests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Chess Game REAL.xcodeproj",
+        "identifier" : "24880C5825DB41AA00E945C7",
+        "name" : "Chess Game REALTests"
+      }
+    }
+  ],
+  "version" : 1
+}

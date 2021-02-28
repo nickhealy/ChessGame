@@ -81,7 +81,7 @@ extension BoardView {
     
     func addPieceImageToBoard(pieceImage: PieceImage, coords: PieceCoords) {
         let pieceImageFrame = createFrame(pieceCoords: coords)
-        pieceImage.frame = pieceImageFrame
+        pieceImage.setInitialPositionInUI(frame: pieceImageFrame)
         pieceImage.layer.zPosition = 1.0
         addSubview(pieceImage)
     }

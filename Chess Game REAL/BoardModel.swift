@@ -5,6 +5,8 @@
 //  Created by Nick Healy on 1/20/21.
 //
 
+typealias PossibleMoves = [PieceCoords?]
+
 class BoardModel: PiecePositionDelegate {
     static private var startingArrangement: [[PieceKeys?]] = [
         [nil, nil, nil, nil, nil, nil, nil, nil],
@@ -62,5 +64,9 @@ class BoardModel: PiecePositionDelegate {
     
     internal func removePieceAt(pieceCoords: PieceCoords) {
         currentArrangement[pieceCoords.row][pieceCoords.col] = nil
+    }
+    
+    internal func getMovesFor(pieceKey: PieceKeys) -> PossibleMoves {
+        return []
     }
 }

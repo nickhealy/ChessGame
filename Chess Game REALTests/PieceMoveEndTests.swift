@@ -26,7 +26,7 @@ class PieceMoveEndTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        vc.boardModel = nil
+        vc.positionInModelDelegate = nil
     }
 
     func testGetSideOfSquareOccupant() throws {
@@ -46,9 +46,21 @@ class PieceMoveEndTests: XCTestCase {
         XCTAssertEqual(expected, actual, "selects piece and stores info in vc")
     }
     
-    func testDoNormalPieceMoveInModel() throws {
+    func moveWKingTo(square: PieceCoords) {
         vc.selectPieceAt(pieceCoords: PieceCoords(row: 1, col: 1))
-        vc.dropOnSquareAt(pieceCoords: PieceCoords(row: 0, col: 1))
+        vc.dropOnSquareAt(pieceCoords: square)
+    }
+    
+    func moveWKingToAndGetFrame(square:PieceCoords) -> CGRect? {
+        moveWKingTo(square: square)
+        guard let movedPieceKey = vc.positionInModelDelegate?.getPieceAt(pieceCoords: square) else {
+            return nil
+        }
+        return PieceData.getPieceImage(pieceKey: movedPieceKey).frame
+    }
+    
+    func testDoNormalPieceMoveInModel() throws {
+        moveWKingTo(square: PieceCoords(row: 0, col: 1))
         let expected: [[PieceKeys?]] = [
             [nil, .w_king, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, nil, nil, nil, nil, nil],
@@ -64,12 +76,14 @@ class PieceMoveEndTests: XCTestCase {
     }
     
     func testDoNormalPieceMoveInView() throws {
+        let to: PieceCoords = PieceCoords(row: 1, col: 2)
+        let movedPieceFrame = moveWKingToAndGetFrame(square: to)
         
+        XCTAssertEqual(movedPieceFrame, CGRect(x: 82.0, y: 41.0, width: 41.0, height: 41.0), "moves piece to new square for normal movement")
     }
     
-    func testDropOnEnemySquare() throws {
-        vc.selectPieceAt(pieceCoords: PieceCoords(row: 1, col: 1))
-        vc.dropOnSquareAt(pieceCoords: PieceCoords(row: 5, col: 5))
+    func testDropOnEnemySquareModel() throws {
+        moveWKingTo(square: PieceCoords(row: 5, col: 5))
         let expected: [[PieceKeys?]] = [
             [nil, nil, nil, nil, nil, nil, nil, nil],
             [nil, nil, nil, nil, nil, nil, nil, nil],
@@ -82,4 +96,38 @@ class PieceMoveEndTests: XCTestCase {
         ]
         XCTAssertEqual(expected, vc.positionInModelDelegate?.getCurrentPieceArrangement(), "if selected piece dropped on enemy square, should take piece at that square")
     }
+    
+    func testDropOnEnemySquareView() throws {
+        let movedPieceFrame = moveWKingToAndGetFrame(square: PieceCoords(row: 5, col: 5))
+        XCTAssertEqual(movedPieceFrame, CGRect(x: 205.0, y: 205.0, width: 41.0, height: 41.0), "moves piece to new square when taking enemy piece")
+    }
+    
+    func testDropOnSameSideSquareModel() throws {
+        moveWKingTo(square: PieceCoords(row: 2, col: 7))
+        XCTAssertEqual(vc.positionInModelDelegate?.getCurrentPieceArrangement(), self.testArrangement , "does not alter model if piece dropped on same side")
+    }
+    
+//    func testNormalPieceMoveIntegration() throws {
+//        simulateMoveWKingInsideBoard()
+//        let expected: [[PieceKeys?]] = [
+//            [nil, nil, nil, nil, nil, nil, nil, nil],
+//            [nil, nil, nil, nil, nil, nil, nil, nil],
+//            [nil, .w_king, nil, nil, nil, nil, nil, .w_rook_1],
+//            [nil, nil, nil, nil, nil, nil, nil, nil],
+//            [nil, nil, nil, nil, nil, nil, nil, nil],
+//            [nil, nil, nil, nil, nil, .b_pawn_1, nil, nil],
+//            [nil, nil, nil, nil, nil, nil, nil, nil],
+//            [nil, nil, nil, nil, nil, nil, nil, nil],
+//        ]
+//        
+//        XCTAssertEqual(expected, vc.positionInModelDelegate?.getCurrentPieceArrangement())
+//    }
+//    
+//    func simulateMoveWKingInsideBoard() {
+//        let app = XCUIApplication()
+//        app.launch()
+//        let fromCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 91.0, dy: 242.5))
+//        let toCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 86.0, dy: 288.0))
+//        fromCoordinate.press(forDuration: 0, thenDragTo: toCoordinate)
+//    }
 }
