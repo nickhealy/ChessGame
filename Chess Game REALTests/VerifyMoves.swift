@@ -133,7 +133,7 @@ class VerifyMoves: XCTestCase {
             [nil, nil, nil, nil, nil, nil, nil, nil],
         ]
         addNewArrangement(arrangement: arrangement)
-        let actual = getMovesFor(piece: .w_bishop_2)
+        let actual = getMovesFor(piece: .w_bishop_1)
         let expected: PossibleMoves = bishopMovesFromRow3Col3
         XCTAssertTrue(areMovesEqual(moves1: actual, moves2: expected), "gives more for bishop with no obstacles")
     }
@@ -187,6 +187,40 @@ class VerifyMoves: XCTestCase {
         let actual = getMovesFor(piece: .w_pawn_1)
         let expected: PossibleMoves = [PieceCoords(row: 2, col: 3), PieceCoords(row: 2, col: 2)]
         XCTAssertTrue(areMovesEqual(moves1: actual, moves2: expected), "also shows when pawn is able to take a piece diagonally")
+    }
+    
+    func testPawnDoesNotSameSide() {
+        let arrangement: [[PieceKeys?]] = [
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, .b_queen, nil, .w_queen, nil, nil, nil],
+            [nil, nil, nil, .w_pawn_1, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+        addNewArrangement(arrangement: arrangement)
+        let actual = getMovesFor(piece: .w_pawn_1)
+        let expected: PossibleMoves = [PieceCoords(row: 2, col: 3), PieceCoords(row: 2, col: 2)]
+        XCTAssertTrue(areMovesEqual(moves1: actual, moves2: expected), "and does not try to threaten same side squares")
+    }
+    
+    func testPawnDoesNotThreatenedInvalidSquare() {
+        let arrangement: [[PieceKeys?]] = [
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, .b_bishop_1, nil, nil, nil, nil, nil, nil],
+            [.w_pawn_1, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+        addNewArrangement(arrangement: arrangement)
+        let actual = getMovesFor(piece: .w_pawn_1)
+        let expected: PossibleMoves = [PieceCoords(row: 1, col: 0),PieceCoords(row: 1, col: 1)]
+        XCTAssertTrue(areMovesEqual(moves1: actual, moves2: expected), "and does not try to threaten squares off the board")
     }
     
     func testGetMovesForPawnNeverMoved() {

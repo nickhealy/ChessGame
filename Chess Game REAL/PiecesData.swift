@@ -8,8 +8,17 @@
 import UIKit
 
 struct PieceMoves {
-    let moves: [Int]
+    let moves: [MovePattern]
     let recursive: Bool
+}
+
+struct MovePattern {
+    let rowChange: Int
+    let colChange: Int
+    init (_ rowChange: Int, _ colChange: Int) {
+        self.rowChange = rowChange
+        self.colChange = colChange
+    }
 }
 
 class PieceData {
@@ -48,9 +57,23 @@ class PieceData {
         .b_pawn_8 : Piece(color: .black, name: .pawn, key: .b_pawn_8),
     ]
     
-    private let movesByPieceName: [PieceNames: PieceMoves] = [
-        .rook : PieceMoves(moves: [], recursive: true)
+    static public func getPieceTypeFromKey(_ key: PieceKeys) -> PieceNames {
+        return getPiece(piecekey: key).name
+    }
+    
+    private static let movesByPieceName: [PieceNames: PieceMoves] = [
+        .rook : PieceMoves(moves: [MovePattern(1, 0), MovePattern(0, 1), MovePattern(-1, 0), MovePattern(0, -1)], recursive: true),
+        .bishop: PieceMoves(moves: [MovePattern(1, 1), MovePattern(-1, 1), MovePattern(-1, -1), MovePattern(1, -1)], recursive: true),
+        .knight: PieceMoves(moves: [MovePattern(-2, 1), MovePattern(-2, -1), MovePattern(-1, 2), MovePattern(1, 2), MovePattern(2, 1), MovePattern(2, -1), MovePattern(1, -2), MovePattern(-1, -2)], recursive: false),
+        .queen: PieceMoves(moves: [MovePattern(1, 0), MovePattern(0, 1), MovePattern(-1, 0), MovePattern(0, -1), MovePattern(1, 1), MovePattern(-1, 1), MovePattern(-1, -1), MovePattern(1, -1)], recursive: true),
+        .pawn: PieceMoves(moves: [MovePattern(-1, 0)], recursive: false),
+        .king: PieceMoves(moves: [MovePattern(1, 0), MovePattern(0, 1), MovePattern(-1, 0), MovePattern(0, -1)], recursive: false)
     ]
+    
+    static public func getMovesForPieceKey(key: PieceKeys) -> PieceMoves {
+        let type = getPieceTypeFromKey(key)
+        return self.movesByPieceName[type]!
+    }
     
     static public func getPieceImage(pieceKey: PieceKeys) -> PieceImage {
         let piece = getPiece(piecekey: pieceKey)

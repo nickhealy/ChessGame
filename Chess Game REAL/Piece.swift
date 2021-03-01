@@ -18,7 +18,6 @@ protocol PieceProtocol {
     var image: PieceImage { get }
     var key: PieceKeys { get }
     var movePattern: [[Int]] { get }
-    var hasMoved: Bool { get }
     func findMoves(currentPosition: CGPoint) -> [CGPoint]
     func isOwnPiece(playerColor: Colors) -> Bool
 }
@@ -32,9 +31,6 @@ struct Piece: PieceProtocol {
     var image: PieceImage
     
     var movePattern: [[Int]] = []
-    
-    var hasMoved: Bool = false
-    
     var key: PieceKeys
     
     init(color: Colors, name: PieceNames, key: PieceKeys) {
