@@ -8,11 +8,12 @@
 typealias PossibleMoves = [PieceCoords?]
 
 class BoardModel: PiecePositionDelegate {
+    
     static private var startingArrangement: [[PieceKeys?]] = [
         [nil, nil, nil, nil, nil, nil, nil, nil],
         [nil, .w_king, nil, nil, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, .w_rook_1],
-        [nil, nil, nil, nil, nil, nil, nil, nil],
+        [nil, nil, nil, .b_knight_1, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, nil],
         [nil, nil, nil, nil, nil, .b_pawn_1, nil, nil],
         [nil, nil, nil, nil, nil, nil, nil, nil],
@@ -167,6 +168,14 @@ class BoardModel: PiecePositionDelegate {
         return coords
     }
     
+    public func isEnemyInCheck() -> Bool {
+        return true
+    }
+    
+    public func areWeInCheck() -> Bool {
+        return true
+    }
+    
     private func getCoordsFromKey(key: PieceKeys) -> PieceCoords? {
         for row in 0..<8 {
             for col in 0..<8 {
@@ -178,4 +187,16 @@ class BoardModel: PiecePositionDelegate {
         print("ERROR: no coords found for \(key)")
         return nil
     }
+}
+
+protocol showNewBoardInUIDelegate {
+    <#requirements#>
+}
+
+extension BoardModel: BoardModelDelegate {
+    func applyMoveToBoard(move: Move) {
+        movePieceTo(piece: move.piece, newCoords: move.to)
+    }
+    
+    
 }

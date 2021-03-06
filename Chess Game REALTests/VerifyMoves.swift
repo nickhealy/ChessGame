@@ -257,6 +257,23 @@ class VerifyMoves: XCTestCase {
         XCTAssertTrue(areMovesEqual(moves1: actual, moves2: expected), "gives moves for king")
     }
     
+    func testGetMovesForKingAvoidingCheck() {
+        let arrangement: [[PieceKeys?]] = [
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, .w_king, nil, nil, nil, nil, nil, nil],
+            [nil, nil, .b_rook_1, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+            [nil, nil, nil, nil, nil, nil, nil, nil],
+        ]
+        addNewArrangement(arrangement: arrangement)
+        let actual = getMovesFor(piece: .w_king)
+        let expected: PossibleMoves = [PieceCoords(row: 1, col: 1), PieceCoords(row: 2, col: 0), PieceCoords(row: 3, col: 3)]
+        XCTAssertTrue(areMovesEqual(moves1: actual, moves2: expected), "moves for exclude those that would put him in check")
+    }
+    
 //    MARK: General Movement Rules
     
     func testGetMovesWithObstaclesSameSide() {
@@ -291,13 +308,6 @@ class VerifyMoves: XCTestCase {
         let actual = getMovesFor(piece: .w_rook_1)
         let expected: PossibleMoves = [PieceCoords(row: 2, col: 3), PieceCoords(row: 1, col: 3), PieceCoords(row: 4, col: 3), PieceCoords(row: 5, col: 3), PieceCoords(row: 6, col: 3), PieceCoords(row: 7, col: 3), PieceCoords(row: 3, col: 2), PieceCoords(row: 3, col: 1), PieceCoords(row: 3, col: 0), PieceCoords(row: 3, col: 4), PieceCoords(row: 3, col: 5), PieceCoords(row: 3, col: 6), PieceCoords(row: 3, col: 7)]
         XCTAssertTrue(areMovesEqual(moves1: actual, moves2: expected), "line of movement includes square with enemy, but stops after that")
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
     }
 
 }

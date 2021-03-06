@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "6029A0D5-46B5-4F73-B4EF-A8325AEB466F",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Chess Game REAL.xcodeproj",
+        "identifier" : "24880C5825DB41AA00E945C7",
+        "name" : "Chess Game REALTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Chess Game REAL.xcodeproj",
+        "identifier" : "24A60DC525F3086A00AAA4C6",
+        "name" : "UITests"
+      }
+    }
+  ],
+  "version" : 1
+}

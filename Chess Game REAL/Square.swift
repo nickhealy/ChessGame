@@ -21,13 +21,25 @@ class Square: UIView {
     convenience init(color: Colors, boardCoords: PieceCoords) {
         self.init(frame: .zero)
         self.color = color
-        backgroundColor = color == .white ? .white : .darkGray
+        showSquareColor()
         self.boardCoords = boardCoords
         translatesAutoresizingMaskIntoConstraints = true
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+    }
+    
+    func showSquareColor() {
+        backgroundColor = color == .white ? .white : .darkGray
+    }
+    
+    func showHint() {
+        backgroundColor = .green
+    }
+    
+    func showAsStartingPosition() {
+        backgroundColor = .blue
     }
     
     required init?(coder: NSCoder) {

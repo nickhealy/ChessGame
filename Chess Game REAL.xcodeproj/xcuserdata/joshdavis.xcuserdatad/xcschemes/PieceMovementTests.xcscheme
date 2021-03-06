@@ -48,6 +48,26 @@
                ReferencedContainer = "container:Chess Game REAL.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "24A60DA625F2E5E700AAA4C6"
+               BuildableName = "CheckAndMateTests.xctest"
+               BlueprintName = "CheckAndMateTests"
+               ReferencedContainer = "container:Chess Game REAL.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "24A60DC525F3086A00AAA4C6"
+               BuildableName = "UITests.xctest"
+               BlueprintName = "UITests"
+               ReferencedContainer = "container:Chess Game REAL.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

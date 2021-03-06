@@ -2,7 +2,7 @@
 //  PieceImage.swift
 //  Chess Game REAL
 //
-//  Created by Josh Davis on 1/29/21.
+//  Created by Nick Healy on 1/29/21.
 //
 
 import UIKit
@@ -13,19 +13,23 @@ struct PieceCoords: Equatable {
 }
 
 protocol PieceImageOnBoardDelegate {
-    func beginPieceMove(startingPosition: CGPoint)
-    func checkFinalPositionAndEndMove(endingPosition: CGPoint)
-    func stopMovementIfOutsideBounds(currentPositionOnScreen: CGPoint)
     func getNewFrameForPieceImage(endingCoords: PieceCoords) -> CGRect
-    func dragOverPointAt(point: CGPoint)
-    func cancelMovementOnBoard()
 }
+
+typealias ImageDimensions = (width: CGFloat, height: CGFloat)
+
+let ENLARGEMENT_FACTOR: CGFloat = 1.50
+let SELECTED_ALPHA: CGFloat = 0.80
+let NORMAL_ALPHA: CGFloat = 1.00
+let NORMAL_Z_INDEX: CGFloat = 0.00
+let RAISED_Z_INDEX: CGFloat = 5.00
 
 class PieceImage: UIImageView, PieceImageMovementDelegate {
     
-    var coords: PieceCoords?
-    private var startingPosition: CGRect?
-    private var isMovementCancelled: Bool = false
+    private var originalDimensions: ImageDimensions! = nil
+    private var enlargedDimensions: ImageDimensions {
+        return (originalDimensions!.width * ENLARGEMENT_FACTOR, originalDimensions!.height * ENLARGEMENT_FACTOR)
+    }
     
     var delegate: PieceImageOnBoardDelegate?
     
@@ -41,81 +45,48 @@ class PieceImage: UIImageView, PieceImageMovementDelegate {
     
     func setInitialPositionInUI(frame: CGRect) {
         self.frame = frame
-        rememberNewStartingPosition()
+        saveOriginalDimensions()
     }
     
-    func getPointFromTouch(touch: UITouch) -> CGPoint {
-        let point = touch.location(in: self.superview)
-        return point
+    private func saveOriginalDimensions() {
+        originalDimensions = (frame.width, frame.height)
+    }
+
+    func movePieceImageToPoint(point: CGPoint) {
+        self.center = point
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        rememberNewStartingPosition()
-        if let touch = touches.first {
-            print("touched at \(touch.location(in: window))")
-            let point = getPointFromTouch(touch: touch)
-            delegate?.beginPieceMove(startingPosition: point)
-            
-        }
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if isMovementCancelled {
-            return
-        }
-        
-        guard let touch = touches.first else { return }
-        let touchedPoint = getPointFromTouch(touch: touch)
-        delegate?.stopMovementIfOutsideBounds(currentPositionOnScreen: touchedPoint)
-        
-        continueDragIfMovementNotCancelled(currentPoint: touchedPoint)
-    }
-    
-    func continueDragIfMovementNotCancelled(currentPoint: CGPoint) {
-        if isMovementCancelled {
-            return
-        }
-    
-        self.center = CGPoint(x: currentPoint.x, y: currentPoint.y)
-        delegate?.dragOverPointAt(point: currentPoint)
-    }
-    
-    func rememberNewStartingPosition() {
-        print("REMEMBERING")
-        self.startingPosition = self.frame
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if isMovementCancelled {
-            isMovementCancelled = false
-            return
-        }
-        
-        if let touch = touches.first {
-            let point = getPointFromTouch(touch: touch)
-            delegate?.checkFinalPositionAndEndMove(endingPosition: point)
-        }
-    }
-    
-    func cancelPieceImageMovementAndReturnToOriginalPosition() {
-        returnPieceToStartingPosition()
-        isMovementCancelled = true
-    }
-    
-    func returnPieceToStartingPosition() {
-        self.frame = self.startingPosition!
-        self.startingPosition = nil
-    }
-    
-    func moveImageTo(newCoords: PieceCoords) {
+    func moveImageToSquareAt(newCoords: PieceCoords) {
         centerPieceInSquare(squareAt: newCoords)
     }
     
-    func centerPieceInSquare(squareAt: PieceCoords) {
+    private func centerPieceInSquare(squareAt: PieceCoords) {
         if let newFrameOnBoard = delegate?.getNewFrameForPieceImage(endingCoords: squareAt) {
-            print(newFrameOnBoard)
             self.frame = newFrameOnBoard
         }
     }
     
+    func enlargeAndRaiseFromBoard() {
+        applyNewDimensions(dimensions: enlargedDimensions)
+        applyNewTransparency(alpha: SELECTED_ALPHA)
+        applyNewZIndex(index: RAISED_Z_INDEX)
+    }
+    
+    func returnToNormalSizeAndLowerToBoard() {
+        applyNewDimensions(dimensions: originalDimensions)
+        applyNewTransparency(alpha: NORMAL_ALPHA)
+        applyNewZIndex(index: NORMAL_Z_INDEX)
+    }
+    
+    private func applyNewDimensions(dimensions: ImageDimensions) {
+        self.frame = CGRect(x: frame.minX, y: frame.minY, width: dimensions.width, height: dimensions.height)
+    }
+    
+    private func applyNewTransparency(alpha: CGFloat) {
+        self.alpha = alpha
+    }
+    
+    private func applyNewZIndex(index: CGFloat) {
+        layer.zPosition = index
+    }
 }

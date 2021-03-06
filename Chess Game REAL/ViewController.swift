@@ -11,6 +11,14 @@ struct SelectedPiece: Equatable {
     var key: PieceKeys
     var image: PieceImage
     var originalPosition: PieceCoords
+    var possibleMoves: PossibleMoves
+    
+    init(key: PieceKeys, at: PieceCoords, inBoard: BoardModel) {
+        self.key = key
+        self.originalPosition = at
+        self.image = PieceData.getPieceImage(pieceKey: key)
+        self.possibleMoves = inBoard.getMovesFor(pieceKey: key)
+    }
     
     static func == (lhs: SelectedPiece, rhs: SelectedPiece) -> Bool {
         return lhs.key == rhs.key && lhs.originalPosition == rhs.originalPosition
@@ -29,9 +37,7 @@ protocol PiecePositionDelegate {
 }
 
 protocol PieceImageMovementDelegate {
-    func returnPieceToStartingPosition()
-    func cancelPieceImageMovementAndReturnToOriginalPosition()
-    func moveImageTo(newCoords: PieceCoords)
+    func moveImageToSquareAt(newCoords: PieceCoords)
 }
     
 
@@ -42,6 +48,9 @@ class ViewController: UIViewController {
     
     var positionInModelDelegate: PiecePositionDelegate?
     var boardUIDelegate: BoardUIDelegate?
+    var pieceDragAndDropManager: DragAndDropManager?
+    var moveHintManager: MoveHintManager?
+    var moveManager: MoveManager?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,9 +58,12 @@ class ViewController: UIViewController {
         view.backgroundColor = .cyan
         createBoard()
         boardModel = BoardModel()
+        moveManager = MoveManager(board: boardModel!)
         boardView?.updatePositionDelegate = self
         positionInModelDelegate = boardModel
         boardUIDelegate = boardView
+        moveHintManager = boardView
+        pieceDragAndDropManager = DragAndDropManager(board: boardView!)
     }
     
 //    by this point we will have calculated the measurements of each square
@@ -80,9 +92,27 @@ class ViewController: UIViewController {
         boardView.centerYAnchor.constraint(equalTo: view.layoutMarginsGuide.centerYAnchor).isActive = true
     }
     
+    func renderNewBoardPosition() {
+        
+    }
+    
+}
+
+protocol PieceImageMovementManager {
+    func cancelMoveAndReturnPieceToOriginalPosition(image: PieceImage, originalPosition: PieceCoords)
+    func stickPieceInPotentialSquare(image: PieceImage, squareAt: PieceCoords)
+    func movePieceNormallyOverPoint(image: PieceImage, point: CGPoint)
+    func resetMove()
+}
+
+protocol MoveHintManager {
+    func highlightSquaresAt(possibleMoves: PossibleMoves)
+    func removeSquareHighlights()
+    func highlightStartingPosition(at: PieceCoords)
 }
 
 extension ViewController: PiecePositionUpdateDelegate {
+    
     func getSideOfSquareOccupant(pieceCoords: PieceCoords) -> Colors? {
         if let keyOfOccupant = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords) {
             let occupyingPiece = PieceData.getPiece(piecekey: keyOfOccupant)
@@ -93,26 +123,72 @@ extension ViewController: PiecePositionUpdateDelegate {
     
     }
     
-//    MARK: Selecting A Piece
-    
-    func selectPieceAt(pieceCoords: PieceCoords) {
-        if let newSelectedPiece = createNewSelectedPiece(coords: pieceCoords) {
-            selectedPiece = newSelectedPiece
+    func handleBoardTouchedAt(pieceCoords: PieceCoords) {
+        if (thereIsSelectablePieceAt(pieceCoords: pieceCoords)) {
+            selectPieceAt(pieceCoords: pieceCoords)
         }
     }
     
-    private func createNewSelectedPiece(coords: PieceCoords) -> SelectedPiece? {
-        guard let pieceKey = positionInModelDelegate?.getPieceAt(pieceCoords: coords) else { return nil }
-        let pieceImage = PieceData.getPieceImage(pieceKey: pieceKey)
-        return SelectedPiece(key: pieceKey, image: pieceImage, originalPosition: coords)
+//    MARK: Selecting A Piece
+    private func thereIsSelectablePieceAt(pieceCoords: PieceCoords) -> Bool {
+//        for now will let us select any piece, regardless of color
+        if positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords) != nil {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    func selectPieceAt(pieceCoords: PieceCoords) {
+        guard let pieceKey = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords) else { return }
+        self.selectedPiece = SelectedPiece(key: pieceKey, at: pieceCoords, inBoard: boardModel!)
+        showStartingPosition()
+        highlightPossibleMovesOnBoard()
+    }
+    
+    private func showStartingPosition() {
+        guard let startingPosition = selectedPiece?.originalPosition else { return }
+        moveHintManager?.highlightStartingPosition(at: startingPosition)
+    }
+    
+    private func highlightPossibleMovesOnBoard() {
+        guard let possibleMoves = selectedPiece?.possibleMoves else { return }
+        moveHintManager?.highlightSquaresAt(possibleMoves: possibleMoves)
     }
     
     func getSelectedPieceKey() -> PieceKeys? {
         return self.selectedPiece?.key
     }
     
-    func dropOnSquareAt(pieceCoords: PieceCoords ) {
+//    MARK: Dragging a Piece
+    
+    func handlePieceDragOver(pieceCoords: PieceCoords, touchedPoint: CGPoint) {
+        guard let selected = selectedPiece else { return }
         
+        if selected.possibleMoves.contains(pieceCoords) {
+            pieceDragAndDropManager?.stickPieceInPotentialSquare(image: selected.image, squareAt: pieceCoords)
+        } else {
+            pieceDragAndDropManager?.movePieceNormallyOverPoint(image: selected.image, point: touchedPoint)
+        }
+    }
+    
+    func cancelPieceMovement() {
+        guard let selected = selectedPiece else { return }
+        pieceDragAndDropManager?.cancelMoveAndReturnPieceToOriginalPosition(image: selected.image, originalPosition: selected.originalPosition)
+        deselectPiece()
+    }
+    
+    func resetMove() {
+        pieceDragAndDropManager?.resetMove()
+    }
+    
+//    MARK: Placing a piece on a new square
+    func movePieceTo(pieceCoords: PieceCoords) {
+        print("should be moving piece to \(pieceCoords)")
+        
+    }
+    
+    func dropOnSquareAt(pieceCoords: PieceCoords ) {
         if (isCollision(droppedCoords: pieceCoords)) {
             if (isFriendlyCollsion(droppedCoords: pieceCoords)) {
                 handleFriendlyCollision()
@@ -129,25 +205,26 @@ extension ViewController: PiecePositionUpdateDelegate {
     func handlePieceMovementInModelAndView(newCoords: PieceCoords) {
         if let selectedPiece = self.selectedPiece {
             positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: newCoords)
-            movePieceImageTo(newCoords: newCoords)
+//            movePieceImageTo(newCoords: newCoords)
             deselectPiece()
         }
     }
     
-    func movePieceImageTo(newCoords: PieceCoords) {
-        let pieceImageDelegate: PieceImageMovementDelegate = selectedPiece!.image
-        pieceImageDelegate.moveImageTo(newCoords: newCoords)
-    }
-    
+//    func movePieceImageTo(newCoords: PieceCoords) {
+//        let pieceImageDelegate: PieceImageMovementDelegate = selectedPiece!.image
+//        pieceImageDelegate.moveImageTo(newCoords: newCoords)
+//    }
+//
     func deselectPiece() {
         self.selectedPiece = nil
+        moveHintManager?.removeSquareHighlights()
     }
     
     func takeEnemyPieceAt(pieceCoords: PieceCoords) {
         let keyOfPieceToBeTaken = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords)
         positionInModelDelegate?.removePieceAt(pieceCoords: pieceCoords)
         positionInModelDelegate?.movePieceTo(piece: selectedPiece!.key, newCoords: pieceCoords)
-        movePieceImageTo(newCoords: pieceCoords)
+//        movePieceImageTo(newCoords: pieceCoords)
         boardUIDelegate?.removePieceImageFromBoardAt(enemyPieceKey: keyOfPieceToBeTaken!)
     }
     
@@ -174,7 +251,7 @@ extension ViewController: PiecePositionUpdateDelegate {
         if let selectedPiece = selectedPiece {
             
             temporaryImageDelegate = selectedPiece.image
-            temporaryImageDelegate?.returnPieceToStartingPosition()
+//            temporaryImageDelegate?.returnPieceToStartingPosition()
         }
     }
     
@@ -194,7 +271,7 @@ extension ViewController: PiecePositionUpdateDelegate {
         var temporaryImageDelegate: PieceImageMovementDelegate?
         if let selectedPiece = selectedPiece {
             temporaryImageDelegate = selectedPiece.image
-            temporaryImageDelegate?.cancelPieceImageMovementAndReturnToOriginalPosition()
+//            temporaryImageDelegate?.cancelPieceImageMovementAndReturnToOriginalPosition()
         }
     }
 }
