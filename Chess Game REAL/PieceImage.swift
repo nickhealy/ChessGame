@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct PieceCoords: Equatable {
+struct PieceCoords: Equatable, Codable {
     var row: Int
     var col: Int
 }

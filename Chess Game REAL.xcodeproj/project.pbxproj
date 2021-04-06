@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -22,6 +22,7 @@
 		24A82F4725F30D000078BF92 /* UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A60DC825F3086A00AAA4C6 /* UITests.swift */; };
 		24B17C0C25C5290F000A80B2 /* PieceImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B17C0B25C5290F000A80B2 /* PieceImage.swift */; };
 		24B17C0F25C60804000A80B2 /* PiecesData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B17C0E25C60803000A80B2 /* PiecesData.swift */; };
+		24D2D653261AD165005FDDE9 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 24D2D652261AD165005FDDE9 /* Starscream */; };
 		24E7E57A25B9472800FD9172 /* BoardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E7E57925B9472800FD9172 /* BoardModel.swift */; };
 		24F21B9B26112DEE00538FE9 /* MoveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F21B9A26112DEE00538FE9 /* MoveManager.swift */; };
 /* End PBXBuildFile section */
@@ -106,6 +107,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24D2D653261AD165005FDDE9 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,6 +241,9 @@
 			dependencies = (
 			);
 			name = "Chess Game REAL";
+			packageProductDependencies = (
+				24D2D652261AD165005FDDE9 /* Starscream */,
+			);
 			productName = "Chess Game REAL";
 			productReference = 240994D925B3AABE00A16247 /* Chess Game REAL.app */;
 			productType = "com.apple.product-type.application";
@@ -358,6 +363,9 @@
 				Base,
 			);
 			mainGroup = 240994D025B3AABE00A16247;
+			packageReferences = (
+				24D2D651261AD165005FDDE9 /* XCRemoteSwiftPackageReference "Starscream" */,
+			);
 			productRefGroup = 240994DA25B3AABE00A16247 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -929,6 +937,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		24D2D651261AD165005FDDE9 /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		24D2D652261AD165005FDDE9 /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 24D2D651261AD165005FDDE9 /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 240994D125B3AABE00A16247 /* Project object */;
 }

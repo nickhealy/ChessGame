@@ -6,9 +6,9 @@
 //
 
 import Foundation
+import Starscream
 
-struct Move {
-    let piece: PieceKeys
+struct Move: Codable {
     let from: PieceCoords
     let to: PieceCoords
     let isCastle: Bool
@@ -21,21 +21,49 @@ protocol BoardModelDelegate {
     func applyMoveToBoard(move: Move)
 }
 
-class MoveManager {
-    var boardModelDelegate: BoardModelDelegate?
+class MoveManager: WebSocketDelegate {
+    var socket: WebSocket!
     func createMove(piece: SelectedPiece, to: PieceCoords, isCastle: Bool = false) {
-        let newMove = Move(piece: piece.key, from: piece.originalPosition, to: to, isCastle: isCastle)
+        let newMove = Move(from: piece.originalPosition, to: to, isCastle: isCastle)
         makeMove(move: newMove)
     }
     
     init(board: BoardModelDelegate) {
         boardModelDelegate = board
+        var request = URLRequest(url: URL(string: "http://localhost:8080")!)
+        request.timeoutInterval = 5
+        socket = WebSocket(request: request)
+        socket.delegate = self
+        socket.connect()
     }
     
     private func makeMove(move: Move) {
 //        todo, this will have to be some sort of ws thing, this would happen at end of process
-        if true {
-            boardModelDelegate?.applyMoveToBoard(move: move)
+        let jsonEncoder = JSONEncoder()
+        do {
+            let jsonData = try jsonEncoder.encode(move)
+            let json = String(data: jsonData, encoding: String.Encoding.utf8)
+            socket.write(data: jsonData)
+    
+        } catch {
+            print("error")
+        }
+        print()
+//        if true {
+//            boardModelDelegate?.applyMoveToBoard(move: move)
+//        }
+    }
+    
+    func didReceive(event: WebSocketEvent, client: WebSocket) {
+        switch event {
+        case .text(let string):
+            print("received data : \(string)")
+        case .binary(let data):
+            print("received data : \(data)")
+        default:
+            print("received default")
         }
     }
+    
+    var boardModelDelegate: BoardModelDelegate?
 }
