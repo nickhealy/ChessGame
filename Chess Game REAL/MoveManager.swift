@@ -17,8 +17,15 @@ struct Move: Codable {
 //    todo: add timestamp functionality
 }
 
+struct Response: Codable {
+    let from: PieceCoords
+    let to: PieceCoords
+    let isCastle: Bool
+    let player: String
+}
+
 protocol BoardModelDelegate {
-    func applyMoveToBoard(move: Move)
+    func applyMove(move: Move)
 }
 
 class MoveManager: WebSocketDelegate {
@@ -54,12 +61,25 @@ class MoveManager: WebSocketDelegate {
 //        }
     }
     
+    private func processResponse(response: Data) {
+        let jsonDecoder = JSONDecoder()
+        
+        do {
+            let inbound = try jsonDecoder.decode(Move.self, from: response)
+//            TODO: create turn based logic
+            boardModelDelegate?.applyMove(move: inbound)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
     func didReceive(event: WebSocketEvent, client: WebSocket) {
         switch event {
         case .text(let string):
-            print("received data : \(string)")
+            print("received \(string)")
+            processResponse(response: Data(string.utf8))
         case .binary(let data):
-            print("received data : \(data)")
+            print("received binary \(data)")
         default:
             print("received default")
         }

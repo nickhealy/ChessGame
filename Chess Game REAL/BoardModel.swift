@@ -34,18 +34,6 @@ class BoardModel: PiecePositionDelegate {
     init(withArrangement: [[PieceKeys?]] = startingArrangement) {
         self.currentArrangement = withArrangement
     }
-               
-    internal func getPieceAt(pieceCoords: PieceCoords) -> PieceKeys? {
-        return currentArrangement[pieceCoords.row][pieceCoords.col]
-    }
-    
-    internal func movePieceTo(piece: PieceKeys, newCoords: PieceCoords) {
-        if let currentCoords = getCoordsFromKey(key: piece) {
-            removePieceAt(pieceCoords: currentCoords)
-            currentArrangement[newCoords.row][newCoords.col] = piece
-        }
-        
-    }
     
     internal func getCurrentPieceArrangement() -> [[PieceKeys?]] {
         return currentArrangement
@@ -190,9 +178,27 @@ class BoardModel: PiecePositionDelegate {
 }
 
 extension BoardModel: BoardModelDelegate {
-    func applyMoveToBoard(move: Move) {
-//        movePieceTo(piece: move.piece, newCoords: move.to)
+    internal func getPieceAt(pieceCoords: PieceCoords) -> PieceKeys? {
+        return currentArrangement[pieceCoords.row][pieceCoords.col]
     }
     
+    func applyMove(move: Move) {
+        let from = move.from
+        let to = move.to
+        guard let moved = getPieceAt(pieceCoords: from) else { return }
+        if (isCollision()) {
+            return
+        } else {
+            removePieceAt(pieceCoords: from)
+            placeSelectedPieceAt(piece: moved, at: to)
+        }
+    }
     
+    internal func placeSelectedPieceAt(piece: PieceKeys, at: PieceCoords) {
+        currentArrangement[at.row][at.col] = piece
+    }
+    
+    internal func isCollision() -> Bool {
+        return false
+    }
 }

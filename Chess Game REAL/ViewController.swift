@@ -31,7 +31,6 @@ protocol BoardUIDelegate {
 
 protocol PiecePositionDelegate {
     func getPieceAt(pieceCoords: PieceCoords) -> PieceKeys?
-    func movePieceTo(piece: PieceKeys, newCoords: PieceCoords)
     func removePieceAt(pieceCoords: PieceCoords)
     func getCurrentPieceArrangement() -> [[PieceKeys?]]
 }
@@ -198,19 +197,19 @@ extension ViewController: PiecePositionUpdateDelegate {
                 takeEnemyPieceAt(pieceCoords: pieceCoords)
             }
         } else {
-            handlePieceMovementInModelAndView(newCoords: pieceCoords)
+//            handlePieceMovementInModelAndView(newCoords: pieceCoords)
         }
     }
     
 //    MARK: Regular Movement
 
-    func handlePieceMovementInModelAndView(newCoords: PieceCoords) {
-        if let selectedPiece = self.selectedPiece {
-            positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: newCoords)
-//            movePieceImageTo(newCoords: newCoords)
-            deselectPiece()
-        }
-    }
+//    func handlePieceMovementInModelAndView(newCoords: PieceCoords) {
+//        if let selectedPiece = self.selectedPiece {
+//            positionInModelDelegate?.movePieceTo(piece: selectedPiece.key, newCoords: newCoords)
+////            movePieceImageTo(newCoords: newCoords)
+//            deselectPiece()
+//        }
+//    }
     
 //    func movePieceImageTo(newCoords: PieceCoords) {
 //        let pieceImageDelegate: PieceImageMovementDelegate = selectedPiece!.image
@@ -225,7 +224,7 @@ extension ViewController: PiecePositionUpdateDelegate {
     func takeEnemyPieceAt(pieceCoords: PieceCoords) {
         let keyOfPieceToBeTaken = positionInModelDelegate?.getPieceAt(pieceCoords: pieceCoords)
         positionInModelDelegate?.removePieceAt(pieceCoords: pieceCoords)
-        positionInModelDelegate?.movePieceTo(piece: selectedPiece!.key, newCoords: pieceCoords)
+//        positionInModelDelegate?.movePieceTo(piece: selectedPiece!.key, newCoords: pieceCoords)
 //        movePieceImageTo(newCoords: pieceCoords)
         boardUIDelegate?.removePieceImageFromBoardAt(enemyPieceKey: keyOfPieceToBeTaken!)
     }
@@ -258,7 +257,7 @@ extension ViewController: PiecePositionUpdateDelegate {
     }
     
     func returnPieceToOriginalPositionInModelAndDeselect() {
-        positionInModelDelegate?.movePieceTo(piece: selectedPiece!.key, newCoords: selectedPiece!.originalPosition)
+//        positionInModelDelegate?.movePieceTo(piece: selectedPiece!.key, newCoords: selectedPiece!.originalPosition)
         deselectPiece()
     }
     
