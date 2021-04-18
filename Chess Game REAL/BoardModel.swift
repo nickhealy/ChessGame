@@ -46,6 +46,8 @@ class BoardModel: PiecePositionDelegate {
     internal func getMovesFor(pieceKey: PieceKeys) -> PossibleMoves {
         var possibleMoves: PossibleMoves = []
         guard let currentCoords = getCoordsFromKey(key: pieceKey) else { return [] }
+        possibleMoves.append(currentCoords)
+        
         let pieceMoveInfo = PieceData.getMovesForPieceKey(key: pieceKey)
         
         for movePattern in pieceMoveInfo.moves {

@@ -183,7 +183,10 @@ extension ViewController: PiecePositionUpdateDelegate {
     
 //    MARK: Placing a piece on a new square
     func movePieceTo(pieceCoords: PieceCoords) {
-        print("should be moving piece to \(pieceCoords)")
+        if (pieceCoords == selectedPiece?.originalPosition) {
+            print("MOVED BACK TO SAME SQUARE")
+            return 
+        }
         guard let selected = selectedPiece else { return }
         moveManager?.createMove(piece: selected, to: pieceCoords)
         

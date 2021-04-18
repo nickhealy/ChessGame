@@ -56,9 +56,6 @@ class MoveManager: WebSocketDelegate {
             print("error")
         }
         print()
-//        if true {
-//            boardModelDelegate?.applyMoveToBoard(move: move)
-//        }
     }
     
     private func processResponse(response: Data) {
