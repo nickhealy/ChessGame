@@ -7,7 +7,12 @@
 
 typealias PossibleMoves = [PieceCoords?]
 
+protocol EngineProtocol {
+    showMoveOnBoard(
+}
+
 class BoardModel: PiecePositionDelegate {
+    private var engine: ViewController
     
     static private var startingArrangement: [[PieceKeys?]] = [
         [.w_rook_1, .w_knight_1, .w_bishop_1, .w_king, .w_queen, .w_bishop_2, .w_knight_2, .w_rook_2],
@@ -31,8 +36,9 @@ class BoardModel: PiecePositionDelegate {
         [nil, nil, nil, nil, nil, nil, nil, nil],
     ]
     
-    init(withArrangement: [[PieceKeys?]] = startingArrangement) {
+    init(engine: ViewController, withArrangement: [[PieceKeys?]] = startingArrangement) {
         self.currentArrangement = withArrangement
+        self.engine = engine
     }
     
     internal func getCurrentPieceArrangement() -> [[PieceKeys?]] {
@@ -46,7 +52,6 @@ class BoardModel: PiecePositionDelegate {
     internal func getMovesFor(pieceKey: PieceKeys) -> PossibleMoves {
         var possibleMoves: PossibleMoves = []
         guard let currentCoords = getCoordsFromKey(key: pieceKey) else { return [] }
-        possibleMoves.append(currentCoords)
         
         let pieceMoveInfo = PieceData.getMovesForPieceKey(key: pieceKey)
         
@@ -193,6 +198,7 @@ extension BoardModel: BoardModelDelegate {
         } else {
             removePieceAt(pieceCoords: from)
             placeSelectedPieceAt(piece: moved, at: to)
+            engine.addMoveToBoard(from: from, to: to)
         }
     }
     

@@ -15,14 +15,12 @@ protocol PiecePositionUpdateDelegate {
     func resetMove()
     func getSelectedPieceKey() -> PieceKeys?
     func getSideOfSquareOccupant(pieceCoords: PieceCoords) -> Colors?
-    func dropOnSquareAt(pieceCoords: PieceCoords)
-    func handleCancellingDrag()
     func movePieceTo(pieceCoords: PieceCoords)
 }
 
 class BoardView: UIView {
     var squares: [Square] = []
-    var squareHint: UIView?
+    var hints: [Hint] = []
     var dragAndDropManager: PieceImageMovementManager?
     var updatePositionDelegate: PiecePositionUpdateDelegate?
     
@@ -114,22 +112,7 @@ enum GameErrors: Error {
 
 
 extension BoardView: MovementManagerDelegate {
-    func handleBoardTouchedAt(position: CGPoint) {
-       updatePositionDelegate?.selectPieceAt(pieceCoords: createPieceCoordsFromTouchedPoint(touchedPoint: position))
-    }
-    
-    func handlePieceBeingMovedOffBoard() {
-        
-    }
-    
-    func handlePieceDraggedAt(position: CGPoint) {
-        print("DRAGGED OVER \(createPieceCoordsFromTouchedPoint(touchedPoint: position))")
-    }
-    
-    func handlePieceDroppedAt(position: CGPoint) {
-        print("TOUCH ENDED AT \(createPieceCoordsFromTouchedPoint(touchedPoint: position))")
-    }
-    
+
     func getTouchedPositionInBoard(touchedPoint: UITouch) -> CGPoint {
         return touchedPoint.location(in: self)
     }
@@ -152,18 +135,28 @@ extension BoardView: MovementManagerDelegate {
 extension BoardView: MoveHintManager {
     func highlightSquaresAt(possibleMoves: PossibleMoves) {
         possibleMoves.forEach { move in
-            let squareIdx = getIndexOfSquareFromCoords(coords: move!)
-            squares[squareIdx].showHint()
+            createHint(coords: move, type: .possibleMove)
         }
     }
     
+    private func createHint(coords: PieceCoords?, type: HintType) {
+        guard let hintCoords = coords else { return }
+        let hintFrame = createFrame(pieceCoords: hintCoords)
+        let hint = Hint(frame: hintFrame, type: type)
+        hints.append(hint)
+        
+        addSubview(hint)
+    }
+    
     func removeSquareHighlights() {
-        squares.forEach { $0.showSquareColor()}
+        hints.forEach{ hint in
+            hint.removeFromSuperview()
+        }
+        hints.removeAll()
     }
     
     func highlightStartingPosition(at: PieceCoords) {
-        let indexOfStartingSquare = getIndexOfSquareFromCoords(coords: at)
-        squares[indexOfStartingSquare].showAsStartingPosition()
+        createHint(coords: at, type: .startingPosition)
     }
     
     private func getIndexOfSquareFromCoords(coords: PieceCoords) -> Int {
@@ -183,6 +176,7 @@ extension BoardView {
         if let touch = touches.first {
             let touchedPoint = getTouchedPositionInBoard(touchedPoint: touch)
             if (isPositionOffBoard(position: touchedPoint)) {
+
                 updatePositionDelegate?.cancelPieceMovement()
                 updatePositionDelegate?.resetMove()
             } else {
@@ -198,19 +192,8 @@ extension BoardView {
                 return
             }
             updatePositionDelegate?.movePieceTo(pieceCoords: createPieceCoordsFromTouchedPoint(touchedPoint: touchedPoint))
+            removeSquareHighlights()
         }
-    }
-    
-    func raiseSelectedPiece() {
-        if let selectedPieceImage = getSelectedPieceImage() {
-            selectedPieceImage.layer.zPosition = 5.0
-        }
-    }
-    
-    func cancelMovementOnBoard() {
-        updatePositionDelegate?.handleCancellingDrag()
-        self.lowerSelectedPiece()
-        removeSquareHint()
     }
 }
 
@@ -219,21 +202,7 @@ extension BoardView: PieceImageOnBoardDelegate {
         return
         
     }
-    
-    func beginPieceMove(startingPosition: CGPoint) {
-//        let startingCoords = createPieceCoordsFromTouchedPoint(touchedPoint: startingPosition)
-//        self.updatePositionDelegate?.selectPieceAt(pieceCoords: startingCoords)
-//        self.raiseSelectedPiece()
-//        self.initializeSquareHint()
-    }
-//
-    
-    func lowerSelectedPiece() {
-        if let selectedPieceImage = getSelectedPieceImage() {
-            selectedPieceImage.layer.zPosition = 1.0
-        }
-    }
-    
+  
     func getSelectedPieceImage() -> PieceImage? {
         if let pieceKey = self.updatePositionDelegate?.getSelectedPieceKey() {
             return PieceData.getPieceImage(pieceKey: pieceKey)
@@ -241,56 +210,10 @@ extension BoardView: PieceImageOnBoardDelegate {
         return nil
     }
     
-    func initializeSquareHint() {
-        self.squareHint = UIView()
-        addSubview(self.squareHint!)
-    }
-    
-    func dragOverPointAt(point: CGPoint) {
-        let draggedCoords = createPieceCoordsFromTouchedPoint(touchedPoint: point)
-        createSquareHintFilterFor(squareAt: draggedCoords)
-    }
-    
-    func createSquareHintFilterFor(squareAt: PieceCoords) {
-        let squareOccupiedBy = self.updatePositionDelegate?.getSideOfSquareOccupant(pieceCoords: squareAt)
-        let newHintFrame = createFrame(pieceCoords: squareAt)
-        let newHintColor = getOccupiedByColor(color: squareOccupiedBy)
-        
-        self.squareHint?.frame = newHintFrame
-        self.squareHint?.backgroundColor = newHintColor.withAlphaComponent(0.5)
-        
-    }
-    
-    func getOccupiedByColor(color: Colors?) -> UIColor {
-        var newHintColor: UIColor?
-        
-        switch color {
-        case .black:
-            newHintColor = .green
-        case .white:
-            newHintColor = .blue
-        default:
-            newHintColor = .magenta
-        }
-        
-        return newHintColor!
-    }
-    
     func isOutsideBounds(point: CGPoint) -> Bool {
         return !self.bounds.contains(point)
     }
     
-    
-    func checkFinalPositionAndEndMove(endingPosition: CGPoint) {
-        removeSquareHint()
-        self.lowerSelectedPiece()
-        let endingCoords = createPieceCoordsFromTouchedPoint(touchedPoint: endingPosition)
-        self.updatePositionDelegate?.dropOnSquareAt(pieceCoords: endingCoords)
-    }
-    
-    func removeSquareHint() {
-        self.squareHint?.removeFromSuperview()
-    }
 
     func getNewFrameForPieceImage(endingCoords: PieceCoords) -> CGRect {
 //        let endingCoords = createPieceCoordsFromTouchedPoint(touchedPoint: endingPosition)

@@ -9,12 +9,8 @@ import Foundation
 import UIKit
 
 protocol MovementManagerDelegate {
-    func handlePieceBeingMovedOffBoard()
-    func handleBoardTouchedAt(position: CGPoint)
     func isPositionOffBoard(position: CGPoint) -> Bool
     func getTouchedPositionInBoard(touchedPoint: UITouch) -> CGPoint
-    func handlePieceDroppedAt(position: CGPoint)
-    func handlePieceDraggedAt(position: CGPoint)
 }
 
 class DragAndDropManager: PieceImageMovementManager {
@@ -24,15 +20,6 @@ class DragAndDropManager: PieceImageMovementManager {
     
     init(board: BoardView) {
         self.board = board
-    }
-    
-    func handlePieceDrop(_ touches: Set<UITouch>) {
-        if (wasPieceMovedOffBoard) {
-            return
-        }
-//        if let point = getPointFromTouchData(touches) {
-//            board.handlePieceDroppedAt(position: point)
-//        }
     }
     
     func movePieceNormallyOverPoint(image: PieceImage, point: CGPoint) {

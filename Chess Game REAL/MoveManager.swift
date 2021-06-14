@@ -49,13 +49,10 @@ class MoveManager: WebSocketDelegate {
         let jsonEncoder = JSONEncoder()
         do {
             let jsonData = try jsonEncoder.encode(move)
-            let json = String(data: jsonData, encoding: String.Encoding.utf8)
             socket.write(data: jsonData)
-    
         } catch {
             print("error")
         }
-        print()
     }
     
     private func processResponse(response: Data) {

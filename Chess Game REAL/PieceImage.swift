@@ -18,6 +18,7 @@ protocol PieceImageOnBoardDelegate {
 
 typealias ImageDimensions = (width: CGFloat, height: CGFloat)
 
+// TODO: why does this break when this is a larger value
 let ENLARGEMENT_FACTOR: CGFloat = 1.50
 let SELECTED_ALPHA: CGFloat = 0.80
 let NORMAL_ALPHA: CGFloat = 1.00
@@ -79,7 +80,10 @@ class PieceImage: UIImageView, PieceImageMovementDelegate {
     }
     
     private func applyNewDimensions(dimensions: ImageDimensions) {
-        self.frame = CGRect(x: frame.minX, y: frame.minY, width: dimensions.width, height: dimensions.height)
+//        self.frame = CGRect(x: frame.minX, y: frame.minY, width: 40 , height: 80.0)
+        frame.size.height = dimensions.height
+        frame.size.width = dimensions.width
+//        self.frame = CGRect(x: frame.minX, y: frame.minY, width: dimensions.width, height: dimensions.height)
     }
     
     private func applyNewTransparency(alpha: CGFloat) {

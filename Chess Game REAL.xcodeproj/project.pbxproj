@@ -15,6 +15,7 @@
 		240994FC25B6282100A16247 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240994FB25B6282100A16247 /* BoardView.swift */; };
 		240994FF25B6318000A16247 /* Square.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240994FE25B6318000A16247 /* Square.swift */; };
 		2409950325B6488500A16247 /* Piece.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2409950225B6488500A16247 /* Piece.swift */; };
+		2447364C262DDB400034F3E3 /* Hint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2447364B262DDB400034F3E3 /* Hint.swift */; };
 		2487D8FB25F45A01005E352E /* DragAndDropManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2487D8FA25F45A01005E352E /* DragAndDropManager.swift */; };
 		24880C5C25DB41AA00E945C7 /* Chess_Game_REALTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24880C5B25DB41AA00E945C7 /* Chess_Game_REALTests.swift */; };
 		24880C6625DB5AE400E945C7 /* PieceMoveEndTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24880C6525DB5AE400E945C7 /* PieceMoveEndTests.swift */; };
@@ -77,6 +78,7 @@
 		240994FB25B6282100A16247 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		240994FE25B6318000A16247 /* Square.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Square.swift; sourceTree = "<group>"; };
 		2409950225B6488500A16247 /* Piece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Piece.swift; sourceTree = "<group>"; };
+		2447364B262DDB400034F3E3 /* Hint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hint.swift; sourceTree = "<group>"; };
 		2487D8FA25F45A01005E352E /* DragAndDropManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragAndDropManager.swift; sourceTree = "<group>"; };
 		24880C5925DB41AA00E945C7 /* Chess Game REALTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Chess Game REALTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		24880C5B25DB41AA00E945C7 /* Chess_Game_REALTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chess_Game_REALTests.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				24E7E57925B9472800FD9172 /* BoardModel.swift */,
 				24B17C0B25C5290F000A80B2 /* PieceImage.swift */,
 				240994FB25B6282100A16247 /* BoardView.swift */,
+				2447364B262DDB400034F3E3 /* Hint.swift */,
 				2487D8FA25F45A01005E352E /* DragAndDropManager.swift */,
 				24B17C0E25C60803000A80B2 /* PiecesData.swift */,
 				240994FE25B6318000A16247 /* Square.swift */,
@@ -438,6 +441,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2447364C262DDB400034F3E3 /* Hint.swift in Sources */,
 				240994FF25B6318000A16247 /* Square.swift in Sources */,
 				2487D8FB25F45A01005E352E /* DragAndDropManager.swift in Sources */,
 				240994E125B3AABE00A16247 /* ViewController.swift in Sources */,
